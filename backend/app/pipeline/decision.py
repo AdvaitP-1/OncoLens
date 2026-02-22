@@ -1,40 +1,51 @@
 from __future__ import annotations
 
 
-def recommend_actions(p_fused: float, conservative: bool) -> list[dict]:
-    actions = [
-        {"action": "monitor_2w", "benefit_weight": 0.42, "harm_weight": 0.12, "cost_weight": 0.18},
-        {"action": "repeat_imaging", "benefit_weight": 0.58, "harm_weight": 0.18, "cost_weight": 0.22},
-        {"action": "refer_specialist", "benefit_weight": 0.72, "harm_weight": 0.24, "cost_weight": 0.35},
-        {"action": "biopsy_consideration", "benefit_weight": 0.82, "harm_weight": 0.44, "cost_weight": 0.55},
-    ]
-    risk_aversion = 0.85 if conservative else 0.65
+ACTION_TABLE = [
+    {"action": "monitor_2w", "cost_usd": 120.0, "u_pos": 0.42, "u_neg": -0.18},
+    {"action": "repeat_imaging", "cost_usd": 350.0, "u_pos": 0.58, "u_neg": -0.24},
+    {"action": "refer_specialist", "cost_usd": 780.0, "u_pos": 0.74, "u_neg": -0.36},
+    {"action": "biopsy_consideration", "cost_usd": 1800.0, "u_pos": 0.86, "u_neg": -0.62},
+]
+
+
+def recommend_actions(p_fused: float, lambda_cost: float, abstain: bool) -> list[dict]:
+    if abstain:
+        return [
+            {
+                "action": "defer_to_clinician",
+                "eu": 0.0,
+                "expected_benefit": 0.0,
+                "expected_harm": 0.0,
+                "cost_usd": 0.0,
+            }
+        ]
+
     rows = []
-    for item in actions:
-        benefit = item["benefit_weight"] * p_fused
-        harm = item["harm_weight"] * (1 - p_fused)
-        cost = item["cost_weight"]
-        eu = benefit - risk_aversion * harm - 0.25 * cost
+    cost_scale = 1000.0
+    for item in ACTION_TABLE:
+        cost_scaled = item["cost_usd"] / cost_scale
+        eu = p_fused * item["u_pos"] + (1.0 - p_fused) * item["u_neg"] - lambda_cost * cost_scaled
+        expected_benefit = p_fused * item["u_pos"]
+        expected_harm = (1.0 - p_fused) * abs(item["u_neg"])
         rows.append(
             {
                 "action": item["action"],
-                "expected_utility": eu,
-                "benefit": benefit,
-                "harm": harm,
-                "cost": cost,
+                "eu": eu,
+                "expected_benefit": expected_benefit,
+                "expected_harm": expected_harm,
+                "cost_usd": item["cost_usd"],
             }
         )
-    rows.sort(key=lambda x: x["expected_utility"], reverse=True)
+    rows.sort(key=lambda x: x["eu"], reverse=True)
     return rows[:3]
 
 
 def status_from_score(p_fused: float, abstain: bool) -> str:
     if abstain:
-        return "needs_review"
-    if p_fused >= 0.78:
+        return "deferred"
+    if p_fused >= 0.70:
         return "high_priority"
-    if p_fused >= 0.52:
-        return "ready"
-    if p_fused >= 0.32:
-        return "monitor"
-    return "deferred"
+    if p_fused >= 0.40:
+        return "needs_review"
+    return "monitor"

@@ -1,7 +1,9 @@
-def build_clinician_report(case_id: str, p_health: float, p_vision: float, p_fused: float, abstain: bool, reasons: list[str]) -> str:
+def build_clinician_report(
+    case_id: str, p_health: float, p_vision: float, p_fused: float, abstain: bool, reasons: list[str]
+) -> str:
     lines = [
         f"OncoLens screening triage report for case {case_id}.",
-        f"Health stream score: {p_health:.4f}. Vision stream score: {p_vision:.4f}. Fused screening score: {p_fused:.4f}.",
+        f"Health screening score: {p_health:.4f}. Vision screening score: {p_vision:.4f}. Fused screening score: {p_fused:.4f}.",
     ]
     if abstain:
         lines.append("Guardrails triggered abstention and this case requires clinician review before any action.")
@@ -20,6 +22,6 @@ def build_patient_summary(p_fused: float, status: str, abstain: bool) -> str:
         )
     return (
         f"Your current screening triage status is '{status}'. "
-        f"The support model score is {p_fused:.3f}. "
+        f"The screening support score is {p_fused:.3f}. "
         "Your clinician will review this with your history and advise next steps. This is not a diagnosis."
     )

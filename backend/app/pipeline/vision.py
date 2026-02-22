@@ -3,7 +3,9 @@ from __future__ import annotations
 from io import BytesIO
 
 import numpy as np
-from PIL import Image, ImageFilter
+from PIL import Image
+
+from app.utils.math import ci_from_var, safe_sigmoid
 
 
 def _to_gray_array(image_bytes: bytes) -> np.ndarray:
@@ -11,41 +13,47 @@ def _to_gray_array(image_bytes: bytes) -> np.ndarray:
     return np.asarray(img, dtype=np.float32)
 
 
-def compute_vision_score(image_bytes: bytes) -> dict:
+def compute_vision_score(image_bytes: bytes, z: float = 1.96) -> dict:
     arr = _to_gray_array(image_bytes)
     h, w = arr.shape
     if h < 8 or w < 8:
         raise ValueError("Image resolution is too low for this prototype.")
 
-    gx = np.gradient(arr, axis=1)
-    gy = np.gradient(arr, axis=0)
-    edge_strength = np.sqrt(gx * gx + gy * gy)
-    sobel_like = float(np.mean(edge_strength))
+    grad_y, grad_x = np.gradient(arr)
+    grad_mag = np.sqrt(grad_x * grad_x + grad_y * grad_y)
 
-    pil = Image.fromarray(arr.astype(np.uint8))
-    lap = pil.filter(ImageFilter.FIND_EDGES)
-    lap_arr = np.asarray(lap, dtype=np.float32)
-    focus_proxy = float(np.var(lap_arr) / (np.var(arr) + 1e-6))
+    lap = (
+        -4.0 * arr
+        + np.roll(arr, 1, axis=0)
+        + np.roll(arr, -1, axis=0)
+        + np.roll(arr, 1, axis=1)
+        + np.roll(arr, -1, axis=1)
+    )
+    lap_var = float(np.var(lap))
+    quality_scaled = float(np.log1p(lap_var) / 8.0)
 
-    normalized_texture = min(1.0, sobel_like / 35.0)
-    normalized_focus = min(1.0, focus_proxy / 2.5)
-    p_vision = float(0.25 + 0.55 * normalized_texture + 0.20 * normalized_focus)
-    p_vision = max(0.0, min(1.0, p_vision))
+    a = 4.2
+    b = 0.45
+    p_vision = safe_sigmoid(a * (quality_scaled - b))
 
-    quality = min(1.0, (normalized_texture + normalized_focus) / 2.0)
-    variance = float(0.012 + 0.02 * (1.0 - quality))
+    v0 = 0.004
+    v1 = 0.010
+    eps = 1e-6
+    var_vision = float(np.clip(v0 + (v1 / (quality_scaled + eps)), 0.002, 0.08))
+    ci_vision = list(ci_from_var(p_vision, var_vision, z=z))
 
-    grid = _heatmap_grid(edge_strength)
+    grid = _heatmap_grid(grad_mag, n=32)
     return {
         "p_vision": p_vision,
-        "var_vision": variance,
-        "image_quality": quality,
-        "evidence_grid": grid,
+        "var_vision": var_vision,
+        "ci_vision": ci_vision,
+        "image_quality": quality_scaled,
+        "heatmap_32": grid,
         "shape": {"width": int(w), "height": int(h)},
     }
 
 
-def _heatmap_grid(edge_strength: np.ndarray, n: int = 8) -> list[list[float]]:
+def _heatmap_grid(edge_strength: np.ndarray, n: int = 32) -> list[list[float]]:
     h, w = edge_strength.shape
     cell_h = max(1, h // n)
     cell_w = max(1, w // n)

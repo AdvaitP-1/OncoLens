@@ -17,19 +17,18 @@ class RunRequest(BaseModel):
 
 class ActionRecommendation(BaseModel):
     action: str
-    expected_utility: float
-    benefit: float
-    harm: float
-    cost: float
+    eu: float
+    expected_benefit: float
+    expected_harm: float
+    cost_usd: float
 
 
 class RunResponse(BaseModel):
     case_id: str
-    status: str
     data_quality: dict
     scores: dict
+    uncertainty: dict
+    evidence: dict
+    status: dict
     recommendations: list[ActionRecommendation]
-    abstain: bool
-    abstain_reasons: list[str]
-    clinician_report: str
-    patient_summary: str
+    reports: dict

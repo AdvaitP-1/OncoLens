@@ -16,3 +16,7 @@ def ci_from_var(p: float, var: float, z: float = 1.96) -> tuple[float, float]:
     low = max(0.0, p - z * sd)
     high = min(1.0, p + z * sd)
     return float(low), float(high)
+
+
+def clip01(value: float) -> float:
+    return float(np.clip(value, 0.0, 1.0))

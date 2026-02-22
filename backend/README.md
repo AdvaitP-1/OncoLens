@@ -38,6 +38,8 @@ APP_VERSION=0.1.0
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
+The backend auto-loads `backend/.env` at startup (without requiring `source .env`).
+
 ## Endpoints
 
 - `GET /health`
@@ -54,6 +56,57 @@ curl -X POST "http://127.0.0.1:8000/cases/{case_id}/run" \
   -H "Content-Type: application/json" \
   -d '{"lambda":0.6,"conservative":true}'
 ```
+
+Response shape:
+
+```json
+{
+  "case_id": "uuid",
+  "data_quality": {"days_covered": 28, "gaps_count": 2, "missing_ratio": 0.04},
+  "scores": {
+    "p_health": 0.412345,
+    "ci_health": [0.320000, 0.510000],
+    "p_vision": 0.503210,
+    "ci_vision": [0.410000, 0.590000],
+    "p_fused": 0.457800,
+    "ci_fused": [0.320000, 0.600000]
+  },
+  "uncertainty": {"var_health": 0.0032, "var_vision": 0.0121, "var_fused": 0.0153},
+  "evidence": {"top_wearable_drivers": [], "image_quality": 0.41, "heatmap_32": [[0.0]]},
+  "status": {"abstain": false, "abstain_reasons": [], "category": "needs_review"},
+  "recommendations": [
+    {"action": "repeat_imaging", "eu": 0.102, "expected_benefit": 0.266, "expected_harm": 0.130, "cost_usd": 350.0}
+  ],
+  "reports": {"clinician_report": "...", "patient_summary": "..."}
+}
+```
+
+## Math -> Code Mapping
+
+- Wearables featureization (mean/variance/7d delta/slope): `app/pipeline/wearables.py`
+  - `validate_and_quality()`
+  - `_slope_formula()`
+  - `compute_features()`
+- Health logistic model + Monte Carlo ensemble uncertainty: `app/pipeline/wearables.py`
+  - `score_health_with_ensemble()`
+- Vision quality scoring + 32x32 heatmap + variance heuristic: `app/pipeline/vision.py`
+  - `compute_vision_score()`
+  - `_heatmap_grid()`
+- Calibration interface (no-op, swappable): `app/pipeline/fusion.py`
+  - `IdentityCalibrator.calibrate()`
+- Logit fusion + fused uncertainty: `app/pipeline/fusion.py`
+  - `fuse_scores()`
+- Guardrail abstention rules: `app/pipeline/guardrails.py`
+  - `evaluate_guardrails()`
+- Expected utility decision engine: `app/pipeline/decision.py`
+  - `recommend_actions()`
+  - `status_from_score()`
+- Float rounding / JSON cleaning (no scientific notation): `app/utils/json_clean.py`
+  - `round_floats()`
+- Endpoint orchestration and Supabase writes: `app/main.py`
+  - `run_case()`
+
+See full formula appendix in `MATH.md`.
 
 ## Asset expectations
 

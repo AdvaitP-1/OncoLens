@@ -8,16 +8,22 @@ from fastapi import FastAPI, HTTPException
 
 from app.models.schemas import HealthResponse, RunRequest, RunResponse, ActionRecommendation
 from app.pipeline.decision import recommend_actions, status_from_score
-from app.pipeline.fusion import fuse_scores
+from app.pipeline.fusion import IdentityCalibrator, fuse_scores
 from app.pipeline.guardrails import evaluate_guardrails
 from app.pipeline.reporting import build_clinician_report, build_patient_summary
 from app.pipeline.vision import compute_vision_score
-from app.pipeline.wearables import validate_and_quality, compute_features, score_health
+from app.pipeline.wearables import validate_and_quality, compute_features, score_health_with_ensemble
 from app.settings import settings
 from app.supabase_client import SupabaseClient
 from app.utils.json_clean import round_floats
 
 app = FastAPI(title="OncoLens API", version=settings.app_version)
+
+
+@app.on_event("startup")
+async def startup_validate_config() -> None:
+    # Fail fast so config mistakes are caught immediately at boot.
+    settings.validate_runtime_config()
 
 
 @app.get("/health", response_model=HealthResponse)
@@ -27,7 +33,10 @@ async def health() -> HealthResponse:
 
 @app.post("/cases/{case_id}/run", response_model=RunResponse)
 async def run_case(case_id: str, body: RunRequest) -> RunResponse:
-    sb = SupabaseClient()
+    try:
+        sb = SupabaseClient()
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
     case = await sb.fetch_case(case_id)
     if not case:
         raise HTTPException(status_code=404, detail="Case not found.")
@@ -49,14 +58,17 @@ async def run_case(case_id: str, body: RunRequest) -> RunResponse:
 
     try:
         df = pd.read_csv(BytesIO(csv_bytes))
-        data_quality = validate_and_quality(df)
-        features = compute_features(df)
+        clean_df, data_quality = validate_and_quality(df)
+        wearables = compute_features(clean_df, data_quality=data_quality)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=400, detail=f"Invalid wearables CSV: {exc}") from exc
 
-    p_health, var_health = score_health(features)
+    health = score_health_with_ensemble(
+        feature_order=wearables["feature_order"],
+        feature_vector=wearables["feature_vector"],
+    )
 
     try:
         vision = compute_vision_score(image_bytes)
@@ -67,7 +79,13 @@ async def run_case(case_id: str, body: RunRequest) -> RunResponse:
 
     p_vision = vision["p_vision"]
     var_vision = vision["var_vision"]
-    fusion = fuse_scores(p_health, var_health, p_vision, var_vision, body.lambda_)
+    fusion = fuse_scores(
+        p_health=health["p_health"],
+        var_health=health["var_health"],
+        p_vision=p_vision,
+        var_vision=var_vision,
+        calibrator=IdentityCalibrator(),
+    )
     guardrails = evaluate_guardrails(
         var_fused=fusion["var_fused"],
         data_quality=data_quality,
@@ -75,59 +93,88 @@ async def run_case(case_id: str, body: RunRequest) -> RunResponse:
         conservative=body.conservative,
     )
 
-    recs = recommend_actions(fusion["p_fused"], body.conservative)
-    status = status_from_score(fusion["p_fused"], guardrails["abstain"])
+    status_category = status_from_score(fusion["p_fused"], guardrails["abstain"])
+    recs = recommend_actions(
+        p_fused=fusion["p_fused"], lambda_cost=body.lambda_, abstain=guardrails["abstain"]
+    )
+
     clinician_report = build_clinician_report(
         case_id=case_id,
-        p_health=p_health,
+        p_health=health["p_health"],
         p_vision=p_vision,
         p_fused=fusion["p_fused"],
         abstain=guardrails["abstain"],
         reasons=guardrails["abstain_reasons"],
     )
     patient_summary = build_patient_summary(
-        p_fused=fusion["p_fused"], status=status, abstain=guardrails["abstain"]
+        p_fused=fusion["p_fused"], status=status_category, abstain=guardrails["abstain"]
     )
 
-    scores = {
-        "p_health": p_health,
-        "p_vision": p_vision,
-        "p_fused": fusion["p_fused"],
-        "var_health": var_health,
-        "var_vision": var_vision,
-        "var_fused": fusion["var_fused"],
-        "ci_health": list(fusion["ci_health"]),
-        "ci_vision": list(fusion["ci_vision"]),
-        "ci_fused": list(fusion["ci_fused"]),
-        "evidence_grid": vision["evidence_grid"],
-        "image_shape": vision["shape"],
-        "image_quality": vision["image_quality"],
+    response_payload = {
+        "case_id": case_id,
+        "data_quality": {
+            "days_covered": data_quality.get("days_covered", 0),
+            "gaps_count": data_quality.get("gaps_count", 0),
+            "missing_ratio": data_quality.get("missing_ratio", 1.0),
+        },
+        "scores": {
+            "p_health": health["p_health"],
+            "ci_health": health["ci_health"],
+            "p_vision": p_vision,
+            "ci_vision": vision["ci_vision"],
+            "p_fused": fusion["p_fused"],
+            "ci_fused": fusion["ci_fused"],
+        },
+        "uncertainty": {
+            "var_health": health["var_health"],
+            "var_vision": var_vision,
+            "var_fused": fusion["var_fused"],
+        },
+        "evidence": {
+            "top_wearable_drivers": health["top_wearable_drivers"],
+            "image_quality": vision["image_quality"],
+            "heatmap_32": vision["heatmap_32"],
+        },
+        "status": {
+            "abstain": guardrails["abstain"],
+            "abstain_reasons": guardrails["abstain_reasons"],
+            "category": status_category,
+        },
+        "recommendations": recs,
+        "reports": {
+            "clinician_report": clinician_report,
+            "patient_summary": patient_summary,
+        },
     }
+    rounded_response = round_floats(response_payload)
 
     update_payload = round_floats(
         {
-            "status": status,
-            "data_quality": data_quality,
-            "scores": scores,
-            "recommendations": recs,
-            "abstain": guardrails["abstain"],
-            "abstain_reasons": guardrails["abstain_reasons"],
-            "clinician_report": clinician_report,
-            "patient_summary": patient_summary,
+            "status": status_category,
+            "data_quality": rounded_response["data_quality"],
+            "scores": {
+                "scores": rounded_response["scores"],
+                "uncertainty": rounded_response["uncertainty"],
+                "evidence": rounded_response["evidence"],
+            },
+            "recommendations": rounded_response["recommendations"],
+            "abstain": rounded_response["status"]["abstain"],
+            "abstain_reasons": rounded_response["status"]["abstain_reasons"],
+            "clinician_report": rounded_response["reports"]["clinician_report"],
+            "patient_summary": rounded_response["reports"]["patient_summary"],
             "last_updated": datetime.now(timezone.utc).isoformat(),
         }
     )
     await sb.update_case(case_id, update_payload)
 
     response = RunResponse(
-        case_id=case_id,
-        status=status,
-        data_quality=round_floats(data_quality),
-        scores=round_floats(scores),
-        recommendations=[ActionRecommendation(**round_floats(r)) for r in recs],
-        abstain=guardrails["abstain"],
-        abstain_reasons=guardrails["abstain_reasons"],
-        clinician_report=clinician_report,
-        patient_summary=patient_summary,
+        case_id=rounded_response["case_id"],
+        data_quality=rounded_response["data_quality"],
+        scores=rounded_response["scores"],
+        uncertainty=rounded_response["uncertainty"],
+        evidence=rounded_response["evidence"],
+        status=rounded_response["status"],
+        recommendations=[ActionRecommendation(**r) for r in rounded_response["recommendations"]],
+        reports=rounded_response["reports"],
     )
     return response
