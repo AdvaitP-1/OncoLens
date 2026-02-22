@@ -10,6 +10,7 @@ import { useRequireAuth } from "../../../lib/auth";
 export default function NewCasePage() {
   const { loading, user } = useRequireAuth("clinician");
   const [csvFiles, setCsvFiles] = useState([]);
+  const [imageFile, setImageFile] = useState(null);
   const [patients, setPatients] = useState([]);
   const [patientId, setPatientId] = useState("");
   const [createdCaseId, setCreatedCaseId] = useState("");
@@ -35,6 +36,10 @@ export default function NewCasePage() {
       setStatusText("Please select a patient and upload at least one CSV file.");
       return;
     }
+    if (!imageFile) {
+      setStatusText("Please upload a diagnostic image (PNG or JPG).");
+      return;
+    }
     setStatusText("Creating case...");
     const { data: sessionData } = await supabase.auth.getSession();
     const token = sessionData.session?.access_token;
@@ -54,10 +59,26 @@ export default function NewCasePage() {
       });
       const uploadJson = await uploadRes.json();
       if (!uploadRes.ok) {
-        setStatusText(uploadJson.error || "Failed to upload file.");
+        setStatusText(uploadJson.error || "Failed to upload CSV.");
         return;
       }
       csvPaths.push(storagePath);
+    }
+
+    const safeName = imageFile.name.toLowerCase().replace(/[^a-z0-9._-]/g, "_");
+    const imageStoragePath = `cases/${caseId}/image/${safeName}`;
+    const imageFd = new FormData();
+    imageFd.append("file", imageFile);
+    imageFd.append("path", imageStoragePath);
+    const imageUploadRes = await fetch("/api/storage-upload", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: imageFd,
+    });
+    const imageUploadJson = await imageUploadRes.json();
+    if (!imageUploadRes.ok) {
+      setStatusText(imageUploadJson.error || "Failed to upload image.");
+      return;
     }
 
     const res = await fetch("/api/cases/create", {
@@ -69,7 +90,8 @@ export default function NewCasePage() {
       body: JSON.stringify({
         id: caseId,
         patient_id: patientId,
-        wearables_paths: csvPaths
+        wearables_paths: csvPaths,
+        image_path: imageStoragePath
       })
     });
     const json = await res.json();
@@ -126,6 +148,13 @@ export default function NewCasePage() {
         Supported files: wearable_single, daily_vitals_single, daily_labs_single, medications_single,
         patient_profile_single, clinical_notes_single, imaging_single.
       </p>
+      <div className="mt-4">
+        <UploadDropzone
+          label="Diagnostic Image (PNG or JPG)"
+          accept=".png,.jpg,.jpeg,image/png,image/jpeg"
+          onChange={setImageFile}
+        />
+      </div>
       <div className="card mt-4 p-4">
         <p className="mb-2 text-sm font-semibold">Assign patient</p>
         <select className="input max-w-lg" value={patientId} onChange={(e) => setPatientId(e.target.value)}>

@@ -134,6 +134,101 @@ function RecommendationsTable({ rows }) {
   );
 }
 
+// ─── Gemini reasoning panel ───────────────────────────────────────────────────
+function GeminiReasoningPanel({ reasoning }) {
+  const [open, setOpen] = useState(false);
+  if (!reasoning || !reasoning.clinician_rationale_markdown) return null;
+
+  function BulletList({ items, color = "#0f766e" }) {
+    if (!items?.length) return <p className="text-xs text-slate-400 italic">None</p>;
+    return (
+      <ul className="space-y-1">
+        {items.map((item, i) => (
+          <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
+            <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: color }} />
+            {item}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  return (
+    <div className="rounded-xl overflow-hidden"
+      style={{ border: "1px solid #e2e8f0", boxShadow: "0 1px 4px rgba(0,0,0,0.05)", background: "white" }}>
+      <button className="w-full px-5 py-4 flex items-center justify-between"
+        style={{ borderBottom: open ? "1px solid #f1f5f9" : "none", background: "linear-gradient(to right,#f8fafc,#f0fdf9)" }}
+        onClick={() => setOpen(v => !v)}>
+        <div className="flex items-center gap-3">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "#7c3aed15" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2">
+              <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <div className="text-left">
+            <h2 className="text-sm font-semibold text-slate-800">Gemini Clinical Reasoning</h2>
+            <p className="text-xs text-slate-400 mt-0.5">AI-generated rationale — not a diagnosis</p>
+          </div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"
+          style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+
+      {open && (
+        <div className="p-5 space-y-5">
+          {/* Clinician rationale */}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Clinician Rationale</p>
+            <div className="rounded-lg p-4 text-sm text-slate-700 leading-relaxed whitespace-pre-wrap"
+              style={{ background: "#f8fafc", border: "1px solid #e2e8f0" }}>
+              {reasoning.clinician_rationale_markdown}
+            </div>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2">
+            {/* Image quality notes */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Image Quality Notes</p>
+              <BulletList items={reasoning.image_quality_notes} color="#0284c7" />
+            </div>
+            {/* Wearable signal notes */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Wearable Signal Notes</p>
+              <BulletList items={reasoning.wearable_signal_notes} color="#0f766e" />
+            </div>
+            {/* Follow-up questions */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Follow-up Questions</p>
+              <BulletList items={reasoning.followup_questions} color="#7c3aed" />
+            </div>
+            {/* Limitations */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Limitations</p>
+              <BulletList items={reasoning.limitations} color="#f59e0b" />
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Confidence statement */}
+            <div className="rounded-lg p-3" style={{ background: "#f0fdf4", border: "1px solid #bbf7d0" }}>
+              <p className="text-xs font-semibold text-emerald-700 mb-1">Confidence Statement</p>
+              <p className="text-sm text-emerald-800">{reasoning.confidence_statement}</p>
+            </div>
+            {/* Safety disclaimer */}
+            <div className="rounded-lg p-3" style={{ background: "#fef3c7", border: "1px solid #fcd34d" }}>
+              <p className="text-xs font-semibold text-amber-700 mb-1">Safety Disclaimer</p>
+              <p className="text-sm text-amber-800">{reasoning.safety_disclaimer}</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Note composer ────────────────────────────────────────────────────────────
 function NoteComposer({ onSubmit }) {
   const [note, setNote] = useState("");
@@ -412,6 +507,9 @@ export default function ClinicianCaseDetailPage() {
         </div>
         <RecommendationsTable rows={caseRow.recommendations} />
       </div>
+
+      {/* Gemini reasoning */}
+      <GeminiReasoningPanel reasoning={caseRow.gemini_reasoning} />
 
       {/* Notes row */}
       <div className="grid gap-4 lg:grid-cols-2">
