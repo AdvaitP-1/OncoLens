@@ -23,6 +23,7 @@ def recommend_actions(p_fused: float, lambda_cost: float, abstain: bool) -> list
 
     rows = []
     cost_scale = 1000.0
+    lambda_cost = max(0.0, float(lambda_cost))
     for item in ACTION_TABLE:
         cost_scaled = item["cost_usd"] / cost_scale
         eu = p_fused * item["u_pos"] + (1.0 - p_fused) * item["u_neg"] - lambda_cost * cost_scaled

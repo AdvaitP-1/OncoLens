@@ -30,6 +30,11 @@ SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
 SUPABASE_STORAGE_BUCKET=case-assets
 APP_VERSION=0.1.0
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-2.5-flash
+GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
+GEMINI_TIMEOUT_SECONDS=30
+GEMINI_PROMPT_VERSION=oncolens-v1
 ```
 
 ## Run
@@ -54,7 +59,7 @@ curl http://127.0.0.1:8000/health
 ```bash
 curl -X POST "http://127.0.0.1:8000/cases/{case_id}/run" \
   -H "Content-Type: application/json" \
-  -d '{"lambda":0.6,"conservative":true}'
+  -d '{"lambda":0.6}'
 ```
 
 Response shape:
@@ -78,8 +83,20 @@ Response shape:
     {"action": "repeat_imaging", "eu": 0.102, "expected_benefit": 0.266, "expected_harm": 0.130, "cost_usd": 350.0}
   ],
   "reports": {"clinician_report": "...", "patient_summary": "..."}
+  "gemini": {"ok": true, "model": "gemini-2.5-flash", "prompt_version": "oncolens-v1", "latency_ms": 280, "error": null}
 }
 ```
+
+## Gemini Setup
+
+Gemini runs server-side only and never exposes API keys to frontend code.
+
+```bash
+export GEMINI_API_KEY=your_key_here
+uvicorn app.main:app --reload
+```
+
+If `GEMINI_API_KEY` is not set, OncoLens automatically falls back to template reports and returns `gemini.ok=false`.
 
 ## Math -> Code Mapping
 
@@ -107,6 +124,18 @@ Response shape:
   - `run_case()`
 
 See full formula appendix in `MATH.md`.
+
+## Uncertainty, Abstention, and Next Steps
+
+- **Variance meaning**: variance captures model disagreement under perturbations (ensemble spread). For health and vision scores, uncertainty is estimated from deterministic Monte Carlo ensembles; fusion variance is aggregated as `var_health + var_vision`.
+- **CI heuristic**: confidence bands use a lightweight heuristic `p ± z*sqrt(var)` clipped to `[0,1]` (default `z=1.0` in pipeline helpers).
+- **Abstention**: the case is deferred when any guardrail triggers:
+  - low data quality (`days_covered < 21` or `gaps_count > 5`)
+  - high fused uncertainty (`var_fused > 0.01`)
+  - low image quality (`image_quality < 0.25`)
+- **Next-step ranking**: actions are ranked by expected utility:
+  - `EU = p_fused*U1 + (1-p_fused)*U0 - lambda*(cost_usd/1000)`
+  - returns top-3 actions unless abstaining, in which case it returns `defer_to_clinician`.
 
 ## Asset expectations
 

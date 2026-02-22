@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "../../../../../lib/supabaseServer";
+import { createSupabaseServerClient } from "../../../../lib/supabaseServer";
 
 function getToken(request) {
   const auth = request.headers.get("authorization") || "";

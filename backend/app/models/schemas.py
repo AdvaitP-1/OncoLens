@@ -12,7 +12,6 @@ class HealthResponse(BaseModel):
 
 class RunRequest(BaseModel):
     lambda_: float = Field(0.6, alias="lambda", ge=0.0, le=1.0)
-    conservative: bool = True
 
 
 class ActionRecommendation(BaseModel):
@@ -32,3 +31,4 @@ class RunResponse(BaseModel):
     status: dict
     recommendations: list[ActionRecommendation]
     reports: dict
+    gemini: dict

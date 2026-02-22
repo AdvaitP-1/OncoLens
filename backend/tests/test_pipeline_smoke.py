@@ -10,6 +10,8 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.pipeline.fusion import fuse_scores
+from app.pipeline.guardrails import evaluate_guardrails
+from app.pipeline.decision import recommend_actions, status_from_score
 from app.pipeline.wearables import compute_features, score_health_with_ensemble, validate_and_quality
 from app.pipeline.vision import compute_vision_score
 
@@ -47,10 +49,30 @@ def test_pipeline_probabilities_and_ci_bounds():
         p_vision=vision["p_vision"],
         var_vision=vision["var_vision"],
     )
+    guardrails = evaluate_guardrails(
+        var_fused=fusion["var_fused"],
+        data_quality=quality,
+        image_quality=vision["image_quality"],
+    )
+    category = status_from_score(fusion["p_fused"], guardrails["abstain"])
+    recs = recommend_actions(fusion["p_fused"], lambda_cost=0.6, abstain=guardrails["abstain"])
 
     assert 0.0 <= health["p_health"] <= 1.0
     assert 0.0 <= vision["p_vision"] <= 1.0
     assert 0.0 <= fusion["p_fused"] <= 1.0
+    assert health["var_health"] >= 0.0
+    assert vision["var_vision"] >= 0.0
+    assert fusion["var_fused"] >= 0.0
 
     for lo, hi in [health["ci_health"], vision["ci_vision"], fusion["ci_fused"]]:
         assert 0.0 <= lo <= hi <= 1.0
+    assert health["ci_health"][0] <= health["p_health"] <= health["ci_health"][1]
+    assert vision["ci_vision"][0] <= vision["p_vision"] <= vision["ci_vision"][1]
+    assert fusion["ci_fused"][0] <= fusion["p_fused"] <= fusion["ci_fused"][1]
+
+    assert category in {"high_priority", "needs_review", "monitor", "deferred"}
+    if guardrails["abstain"]:
+        assert len(recs) == 1
+        assert recs[0]["action"] == "defer_to_clinician"
+    else:
+        assert len(recs) == 3

@@ -5,7 +5,7 @@ from io import BytesIO
 import numpy as np
 from PIL import Image
 
-from app.utils.math import ci_from_var, safe_sigmoid
+from app.utils.math import ci_from_var, sigmoid
 
 
 def _to_gray_array(image_bytes: bytes) -> np.ndarray:
@@ -13,7 +13,7 @@ def _to_gray_array(image_bytes: bytes) -> np.ndarray:
     return np.asarray(img, dtype=np.float32)
 
 
-def compute_vision_score(image_bytes: bytes, z: float = 1.96) -> dict:
+def compute_vision_score(image_bytes: bytes, z: float = 1.0) -> dict:
     arr = _to_gray_array(image_bytes)
     h, w = arr.shape
     if h < 8 or w < 8:
@@ -34,12 +34,16 @@ def compute_vision_score(image_bytes: bytes, z: float = 1.96) -> dict:
 
     a = 4.2
     b = 0.45
-    p_vision = safe_sigmoid(a * (quality_scaled - b))
-
     v0 = 0.004
     v1 = 0.010
     eps = 1e-6
-    var_vision = float(np.clip(v0 + (v1 / (quality_scaled + eps)), 0.002, 0.08))
+    quality_var_proxy = float(np.clip(v0 + (v1 / (quality_scaled + eps)), 0.002, 0.08))
+
+    rng = np.random.default_rng(7)  # deterministic for demo reproducibility
+    quality_samples = quality_scaled + rng.normal(0.0, np.sqrt(quality_var_proxy), size=20)
+    p_samples = [sigmoid(a * (float(q) - b)) for q in quality_samples]
+    p_vision = float(np.mean(p_samples))
+    var_vision = float(np.var(p_samples))
     ci_vision = list(ci_from_var(p_vision, var_vision, z=z))
 
     grid = _heatmap_grid(grad_mag, n=32)

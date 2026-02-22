@@ -269,6 +269,7 @@ export default function ClinicianCaseDetailPage() {
   const statusLabel = { high_priority:"High Priority", running:"Running", ready:"Ready", deferred:"Deferred" };
   const sColor = statusColor[caseRow.status] || "#94a3b8";
   const sLabel = statusLabel[caseRow.status] || caseRow.status;
+  const geminiMeta = caseRow.gemini_meta || null;
 
   return (
     <div className="space-y-5">
@@ -284,6 +285,19 @@ export default function ClinicianCaseDetailPage() {
               <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: sColor }}/>
               {sLabel}
             </span>
+            {geminiMeta ? (
+              <span
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold"
+                style={{
+                  background: geminiMeta.ok ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.12)",
+                  color: geminiMeta.ok ? "#059669" : "#dc2626",
+                  border: `1px solid ${geminiMeta.ok ? "rgba(16,185,129,0.25)" : "rgba(239,68,68,0.25)"}`,
+                }}
+                title={geminiMeta.error || ""}
+              >
+                Gemini {geminiMeta.ok ? "OK" : "Fallback"} • {geminiMeta.model || "n/a"} • {geminiMeta.latency_ms ?? 0}ms
+              </span>
+            ) : null}
             <Link href={`/clinician/messages?case=${id}`}
               className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all"
               style={{ background: "rgba(15,118,110,0.08)", color: "#0f766e", border: "1px solid rgba(15,118,110,0.2)" }}>

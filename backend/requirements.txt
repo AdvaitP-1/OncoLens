@@ -6,8 +6,4 @@ pillow
 numpy
 pandas
 httpx
-google-generativeai
-supabase
-celery
-redis
 python-dotenv

@@ -356,3 +356,15 @@ with check (
       and p.role = 'clinician'
   )
 );
+
+-- ----------------------------
+-- Gemini migration section
+-- ----------------------------
+alter table public.cases
+  add column if not exists gemini_reasoning jsonb not null default '{}'::jsonb;
+
+alter table public.cases
+  add column if not exists gemini_meta jsonb not null default '{}'::jsonb;
+
+alter table public.cases
+  add column if not exists clinician_visible_scores boolean not null default true;
