@@ -18,8 +18,15 @@ export default function LoginPage() {
     setError("");
     const { error: authError, data } = await supabase.auth.signInWithPassword({ email, password });
     if (authError) { setError(authError.message); setLoading(false); return; }
-    const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single();
-    router.push(profile?.role === "clinician" ? "/clinician/dashboard" : "/patient/dashboard");
+    const { data: profile, error: profileError } = await supabase.from("profiles").select("role").eq("id", data.user.id).single();
+    if (!profile) {
+      // Profile row is missing — can happen if signup occurred with email confirmation enabled.
+      // Create the profile now with a default patient role so the user can proceed.
+      await supabase.from("profiles").insert({ id: data.user.id, full_name: email.split("@")[0], role: "patient" });
+      router.push("/patient/dashboard");
+      return;
+    }
+    router.push(profile.role === "clinician" ? "/clinician/dashboard" : "/patient/dashboard");
   }
 
   return (

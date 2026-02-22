@@ -233,3 +233,42 @@ async def run_case(case_id: str, body: RunRequest) -> RunResponse:
             )
     except RuntimeError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+# ── List cases for the authenticated clinician ──────────────────────────────
+@app.get("/cases")
+async def list_cases(created_by: str | None = None):
+    async with supabase_client() as sb:
+        query = sb.client.from_("cases").select("*").order("last_updated", desc=True)
+        if created_by:
+            query = query.eq("created_by", created_by)
+        result = await query.execute()
+        return result.data
+
+# ── Fetch a single case ─────────────────────────────────────────────────────
+@app.get("/cases/{case_id}")
+async def get_case(case_id: str):
+    async with supabase_client() as sb:
+        result = await sb.client.from_("cases").select("*").eq("id", case_id).single().execute()
+        if not result.data:
+            raise HTTPException(status_code=404, detail="Case not found.")
+        return result.data
+
+# ── Fetch scores/report for a case ─────────────────────────────────────────
+@app.get("/cases/{case_id}/report")
+async def get_case_report(case_id: str):
+    async with supabase_client() as sb:
+        result = await sb.client.from_("cases").select("scores").eq("id", case_id).single().execute()
+        if not result.data:
+            raise HTTPException(status_code=404, detail="Case not found.")
+        return result.data
+
+# ── Insert a doctor note ────────────────────────────────────────────────────
+@app.post("/cases/{case_id}/notes")
+async def add_doctor_note(case_id: str, body: dict):
+    async with supabase_client() as sb:
+        result = await sb.client.from_("doctor_notes").insert({
+            "case_id": case_id,
+            "author_id": body["author_id"],
+            "note": body["note"],
+        }).execute()
+        return {"ok": True}

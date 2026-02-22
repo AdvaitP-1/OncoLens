@@ -22,16 +22,26 @@ export default function SignupPage() {
       password: form.password
     });
     if (signError) { setError(signError.message); setLoading(false); return; }
-    if (data.user) {
+
+    if (data.session) {
+      // Email confirmation is disabled — user is immediately authenticated.
+      // We have an active session so the RLS policy (id = auth.uid()) will pass.
       const { error: profileError } = await supabase.from("profiles").insert({
         id: data.user.id,
         full_name: form.full_name,
         role: form.role
       });
       if (profileError) { setError(profileError.message); setLoading(false); return; }
+      router.push(form.role === "clinician" ? "/clinician/dashboard" : "/patient/dashboard");
+    } else if (data.user) {
+      // Email confirmation is enabled — no active session yet.
+      // Profile will be created after the user confirms and first logs in.
+      setMessage("Account created! Check your email and click the confirmation link, then log in.");
+      setLoading(false);
+    } else {
+      setError("Something went wrong. Please try again.");
+      setLoading(false);
     }
-    setMessage("Signup successful. Check your email for confirmation if enabled.");
-    router.push("/login");
   }
 
   return (
