@@ -1,12 +1,13 @@
 # app/worker/tasks.py
 # Background task workers for document ingestion and embedding generation
-# Uses Celery for async task processing and Gemini API for embeddings
+# Uses Celery for async task processing and Sentence Transformers for embeddings
 
 import os
 from celery import Celery
 from supabase import create_client
 from pathlib import Path
 from dotenv import load_dotenv
+from sentence_transformers import SentenceTransformer
 
 # Load environment variables from .env file in backend directory
 # Calculate path: api -> app -> backend (2 levels up)
@@ -20,18 +21,9 @@ celery = Celery(__name__, broker=os.environ["REDIS_URL"])
 # Initialize Supabase client for database and storage operations
 supabase = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_ROLE_KEY"])
 
-# ---- Embedding provider configuration (Google Gemini) ----
-try:
-    from google import genai
-    from google.genai import types
-    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-    USE_NEW_API = True
-    EMBED_MODEL = "text-embedding-004"  # New API uses model name without prefix
-except ImportError:
-    import google.generativeai as genai
-    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-    USE_NEW_API = False
-    EMBED_MODEL = "models/text-embedding-004"  # Old API uses full path
+# ---- Embedding provider configuration (Sentence Transformers - FREE, local) ----
+# Load the embedding model once when worker starts
+EMBED_MODEL = SentenceTransformer('all-MiniLM-L6-v2')  # 384 dimensions, fast and efficient
 
 
 def chunk_text(text: str, max_chars=1200, overlap=150):
@@ -60,36 +52,23 @@ def chunk_text(text: str, max_chars=1200, overlap=150):
 
 def embed_texts(texts: list[str]) -> list[list[float]]:
     """
-    Generate vector embeddings for a list of text chunks using Gemini API.
+    Generate vector embeddings for a list of text chunks using Sentence Transformers.
     
-    Each text is converted to a 768-dimensional vector that captures
+    Each text is converted to a 384-dimensional vector that captures
     semantic meaning. Similar texts will have similar vectors.
+    
+    This runs locally and is completely free - no API keys needed!
     
     Args:
         texts: List of text strings to embed
         
     Returns:
-        List of embedding vectors (each is a list of 768 floats)
+        List of embedding vectors (each is a list of 384 floats)
     """
-    embeddings = []
-    # Process each text individually (could be batched for efficiency)
-    for text in texts:
-        if USE_NEW_API:
-            # New google.genai API
-            response = client.models.embed_content(
-                model=EMBED_MODEL,
-                contents=text  # Note: 'contents' not 'content'
-            )
-            embeddings.append(list(response.embeddings[0].values))
-        else:
-            # Old google.generativeai API
-            result = genai.embed_content(
-                model=EMBED_MODEL,
-                content=text,
-                task_type="retrieval_document"  # Optimizes for document indexing
-            )
-            embeddings.append(result['embedding'])
-    return embeddings
+    # Encode all texts at once (batch processing is efficient)
+    embeddings = EMBED_MODEL.encode(texts, show_progress_bar=False)
+    # Convert numpy arrays to lists for JSON serialization
+    return [emb.tolist() for emb in embeddings]
 
 
 def extract_text(file_bytes: bytes, mime: str | None) -> tuple[str, str]:
