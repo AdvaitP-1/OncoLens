@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from io import BytesIO
 
-import pandas as pd
 from fastapi import FastAPI, HTTPException
 
 from app.models.schemas import HealthResponse, RunRequest, RunResponse, ActionRecommendation
@@ -12,7 +10,12 @@ from app.pipeline.fusion import IdentityCalibrator, fuse_scores
 from app.pipeline.guardrails import evaluate_guardrails
 from app.pipeline.reporting import build_clinician_report, build_patient_summary
 from app.pipeline.vision import compute_vision_score
-from app.pipeline.wearables import validate_and_quality, compute_features, score_health_with_ensemble
+from app.pipeline.wearables import (
+    build_unified_wearables,
+    validate_and_quality,
+    compute_features,
+    score_health_with_ensemble,
+)
 from app.settings import settings
 from app.supabase_client import SupabaseClient
 from app.utils.json_clean import round_floats
@@ -45,20 +48,24 @@ async def run_case(case_id: str, body: RunRequest) -> RunResponse:
     if not assets:
         raise HTTPException(status_code=400, detail="No assets found for case.")
 
-    wearables_asset = next((a for a in assets if a.get("asset_type") == "wearables_csv"), None)
+    wearables_assets = [a for a in assets if a.get("asset_type") == "wearables_csv"]
     image_asset = next((a for a in assets if a.get("asset_type") == "image"), None)
-    if not wearables_asset or not image_asset:
+    if not wearables_assets or not image_asset:
         raise HTTPException(status_code=400, detail="Missing required assets: wearables_csv and image.")
 
     try:
-        csv_bytes = await sb.download_storage_object(wearables_asset["storage_path"])
+        csv_payloads = []
+        for asset in wearables_assets:
+            bytes_data = await sb.download_storage_object(asset["storage_path"])
+            csv_payloads.append((asset["storage_path"], bytes_data))
         image_bytes = await sb.download_storage_object(image_asset["storage_path"])
     except Exception as exc:
         raise HTTPException(status_code=400, detail=f"Failed to download assets from storage: {exc}") from exc
 
     try:
-        df = pd.read_csv(BytesIO(csv_bytes))
-        clean_df, data_quality = validate_and_quality(df)
+        unified_df, source_info = build_unified_wearables(csv_payloads)
+        clean_df, data_quality = validate_and_quality(unified_df)
+        data_quality["sources_ingested"] = source_info["sources_ingested"]
         wearables = compute_features(clean_df, data_quality=data_quality)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc

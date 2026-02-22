@@ -35,11 +35,24 @@ Open `http://localhost:3000`.
 - Email/password auth (`/login`, `/signup`, `/forgot-password`)
 - Role-based routing to clinician/patient dashboards
 - Clinician case creation with storage upload:
-  - `cases/{case_id}/wearables.csv`
+  - multiple CSV files under `cases/{case_id}/csv/*.csv`
   - `cases/{case_id}/image.png|jpg`
 - Triggering backend analysis via `/api/cases/run`
 - Case detail with probabilities, recommendations, notes, and abstain banner
 - Realtime messaging using Supabase Realtime subscriptions
+
+### Multi-CSV patient upload
+
+The clinician new-case flow accepts multiple patient CSVs in one case upload.  
+Example formats that are supported in the backend merge step:
+
+- `wearable_single.csv`
+- `daily_vitals_single.csv`
+- `daily_labs_single.csv`
+- `medications_single.csv` (metadata-only)
+- `patient_profile_single.csv` (metadata-only)
+- `clinical_notes_single.csv` (metadata-only)
+- `imaging_single.csv` (metadata-only)
 
 ## Main routes
 

@@ -16,8 +16,8 @@ export async function POST(request) {
     if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
 
     const body = await request.json();
-    const { id, patient_id, wearables_path, image_path } = body;
-    if (!id || !patient_id || !wearables_path || !image_path) {
+    const { id, patient_id, wearables_paths, image_path } = body;
+    if (!id || !patient_id || !Array.isArray(wearables_paths) || wearables_paths.length === 0 || !image_path) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
     }
 
@@ -29,8 +29,13 @@ export async function POST(request) {
     });
     if (caseError) return NextResponse.json({ error: caseError.message }, { status: 400 });
 
+    const csvAssets = wearables_paths.map((p) => ({
+      case_id: id,
+      asset_type: "wearables_csv",
+      storage_path: p
+    }));
     const { error: assetError } = await supabase.from("case_assets").insert([
-      { case_id: id, asset_type: "wearables_csv", storage_path: wearables_path },
+      ...csvAssets,
       { case_id: id, asset_type: "image", storage_path: image_path }
     ]);
     if (assetError) return NextResponse.json({ error: assetError.message }, { status: 400 });

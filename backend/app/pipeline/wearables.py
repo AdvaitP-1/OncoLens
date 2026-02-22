@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from io import BytesIO
 import numpy as np
 import pandas as pd
 
@@ -18,11 +19,97 @@ REQUIRED_COLUMNS = [
     "symptom_score",
 ]
 
+DEFAULTS = {
+    "steps": 6000.0,
+    "sleep_hours": 6.8,
+    "resting_hr": 70.0,
+    "hrv_ms": 45.0,
+    "spo2": 97.0,
+    "temp_c": 36.8,
+    "weight_kg": 70.0,
+    "symptom_score": 2.0,
+}
+
 
 def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
     rename_map = {c: c.strip().lower() for c in df.columns}
     df = df.rename(columns=rename_map)
     return df
+
+
+def build_unified_wearables(csv_payloads: list[tuple[str, bytes]]) -> tuple[pd.DataFrame, dict]:
+    """Merge multiple patient CSV forms into canonical wearables schema."""
+    daily_frames: list[pd.DataFrame] = []
+    source_counts: dict[str, int] = {}
+
+    for path, data in csv_payloads:
+        lower_path = path.lower()
+        source_counts[lower_path.split("/")[-1]] = source_counts.get(lower_path.split("/")[-1], 0) + 1
+        frame = normalize_columns(pd.read_csv(BytesIO(data)))
+        if "date" in frame.columns:
+            frame["date"] = pd.to_datetime(frame["date"], errors="coerce")
+
+        if {"date", "steps", "sleep_hours"}.issubset(frame.columns):
+            mapped = pd.DataFrame(
+                {
+                    "date": frame["date"],
+                    "steps": pd.to_numeric(frame.get("steps"), errors="coerce"),
+                    "sleep_hours": pd.to_numeric(frame.get("sleep_hours"), errors="coerce"),
+                    "resting_hr": pd.to_numeric(
+                        frame.get("resting_hr", frame.get("resting_heart_rate")), errors="coerce"
+                    ),
+                }
+            )
+            daily_frames.append(mapped)
+            continue
+
+        if {"date", "heart_rate", "oxygen_saturation"}.issubset(frame.columns):
+            mapped = pd.DataFrame(
+                {
+                    "date": frame["date"],
+                    "resting_hr": pd.to_numeric(frame.get("heart_rate"), errors="coerce"),
+                    "spo2": pd.to_numeric(frame.get("oxygen_saturation"), errors="coerce"),
+                    "temp_c": pd.to_numeric(frame.get("temperature_c"), errors="coerce"),
+                    "weight_kg": pd.to_numeric(frame.get("weight_kg"), errors="coerce"),
+                }
+            )
+            daily_frames.append(mapped)
+            continue
+
+        if {"date", "lab_test", "value"}.issubset(frame.columns):
+            labs = frame.copy()
+            labs["value"] = pd.to_numeric(labs["value"], errors="coerce")
+            pivot = labs.pivot_table(index="date", columns="lab_test", values="value", aggfunc="mean").reset_index()
+            crp = pd.to_numeric(pivot.get("CRP"), errors="coerce")
+            wbc = pd.to_numeric(pivot.get("WBC"), errors="coerce")
+            mapped = pd.DataFrame(
+                {
+                    "date": pivot["date"],
+                    "symptom_score": np.clip(crp / 2.0, 0.0, 10.0) if crp is not None else np.nan,
+                    "hrv_ms": np.clip(85.0 - 4.0 * wbc, 10.0, 120.0) if wbc is not None else np.nan,
+                }
+            )
+            daily_frames.append(mapped)
+
+    if not daily_frames:
+        raise ValueError("No usable daily patient CSV found. Include wearables, vitals, or labs CSV.")
+
+    merged = pd.concat(daily_frames, ignore_index=True)
+    merged = merged.groupby("date", as_index=False).mean(numeric_only=True)
+    merged = normalize_columns(merged)
+    for col in REQUIRED_COLUMNS:
+        if col not in merged.columns:
+            merged[col] = np.nan
+    merged["date"] = pd.to_datetime(merged["date"], errors="coerce")
+    merged = merged.dropna(subset=["date"]).sort_values("date").reset_index(drop=True)
+    for col, default in DEFAULTS.items():
+        if col not in merged.columns:
+            merged[col] = default
+        merged[col] = pd.to_numeric(merged[col], errors="coerce")
+        median = float(merged[col].median()) if merged[col].notna().any() else default
+        merged[col] = merged[col].fillna(median if np.isfinite(median) else default)
+
+    return merged[REQUIRED_COLUMNS], {"sources_ingested": source_counts}
 
 
 def validate_and_quality(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:

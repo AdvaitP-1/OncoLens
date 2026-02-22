@@ -8,7 +8,7 @@ import { useRequireAuth } from "../../../lib/auth";
 
 export default function NewCasePage() {
   const { loading, user } = useRequireAuth("clinician");
-  const [csvFile, setCsvFile] = useState(null);
+  const [csvFiles, setCsvFiles] = useState([]);
   const [imageFile, setImageFile] = useState(null);
   const [patients, setPatients] = useState([]);
   const [patientId, setPatientId] = useState("");
@@ -25,8 +25,8 @@ export default function NewCasePage() {
   }, []);
 
   async function createCase() {
-    if (!user || !patientId || !csvFile || !imageFile) {
-      setStatusText("Please provide patient, CSV, and image.");
+    if (!user || !patientId || csvFiles.length === 0 || !imageFile) {
+      setStatusText("Please provide patient, one or more CSV files, and an image.");
       return;
     }
     setStatusText("Creating case...");
@@ -34,15 +34,21 @@ export default function NewCasePage() {
     const token = sessionData.session?.access_token;
     const caseId = crypto.randomUUID();
 
-    const wearablesPath = `cases/${caseId}/wearables.csv`;
+    const csvPaths = [];
+    for (const file of csvFiles) {
+      const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]/g, "_");
+      const storagePath = `cases/${caseId}/csv/${safeName}`;
+      const uploadCsv = await supabase.storage.from("case-assets").upload(storagePath, file, { upsert: true });
+      if (uploadCsv.error) {
+        setStatusText(uploadCsv.error.message);
+        return;
+      }
+      csvPaths.push(storagePath);
+    }
+
     const imageExt = imageFile.name.toLowerCase().endsWith(".jpg") || imageFile.name.toLowerCase().endsWith(".jpeg") ? "jpg" : "png";
     const imagePath = `cases/${caseId}/image.${imageExt}`;
 
-    const uploadCsv = await supabase.storage.from("case-assets").upload(wearablesPath, csvFile, { upsert: true });
-    if (uploadCsv.error) {
-      setStatusText(uploadCsv.error.message);
-      return;
-    }
     const uploadImg = await supabase.storage.from("case-assets").upload(imagePath, imageFile, { upsert: true });
     if (uploadImg.error) {
       setStatusText(uploadImg.error.message);
@@ -58,7 +64,7 @@ export default function NewCasePage() {
       body: JSON.stringify({
         id: caseId,
         patient_id: patientId,
-        wearables_path: wearablesPath,
+        wearables_paths: csvPaths,
         image_path: imagePath
       })
     });
@@ -97,9 +103,18 @@ export default function NewCasePage() {
     <div>
       <Topbar title="Create New Case" subtitle="Upload wearables + imaging assets, assign patient, run triage pipeline." />
       <div className="grid gap-4 lg:grid-cols-2">
-        <UploadDropzone label="Wearables CSV" accept=".csv,text/csv" onChange={setCsvFile} />
+        <UploadDropzone
+          label="Patient Data CSVs (multiple)"
+          accept=".csv,text/csv"
+          onChange={setCsvFiles}
+          multiple
+        />
         <UploadDropzone label="Image (.png/.jpg)" accept=".png,.jpg,.jpeg,image/*" onChange={setImageFile} />
       </div>
+      <p className="mt-2 text-xs text-slate-500">
+        Supported examples: wearable_single, daily_vitals_single, daily_labs_single, medications_single,
+        patient_profile_single, clinical_notes_single, imaging_single.
+      </p>
       <div className="card mt-4 p-4">
         <p className="mb-2 text-sm font-semibold">Assign patient</p>
         <select className="input max-w-lg" value={patientId} onChange={(e) => setPatientId(e.target.value)}>
