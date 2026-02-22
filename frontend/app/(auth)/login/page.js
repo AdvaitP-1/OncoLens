@@ -202,12 +202,13 @@ export default function LoginPage() {
 
             <div>
               <h2 className="text-4xl font-bold text-white leading-tight">
-                Welcome back,<br/>
-                <span style={{color:"#14b8a6"}}>clinician.</span>
+                Welcome back<br/>
+                <span style={{color:"#14b8a6"}}>to OncoLens.</span>
               </h2>
               <p className="mt-3 text-slate-400 text-sm leading-relaxed max-w-xs">
-                Sign in to access your patient cases, triage queue, and collaboration workspace.
+                Sign in to access your dashboard, cases, and secure messaging.
               </p>
+
             </div>
 
             {/* Stats */}
