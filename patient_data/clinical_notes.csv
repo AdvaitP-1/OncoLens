@@ -1,0 +1,192 @@
+note_id,visit_id,patient_id,note_text,author,created_at
+c0b2c844-6e96-478d-8851-3a2752ddc9f7,4134e13e-6178-4ac6-bf5b-d0164644873c,49994c98-acc5-4a00-9cc6-19662d7a88d4,Patient experiencing chronic cough and weight loss.,Dr. Lee,2024-01-26
+c2a83997-40f0-41b2-a011-06ba4f8bc9c0,6d1c79af-cf77-4c85-956a-bda0f78fbd75,49994c98-acc5-4a00-9cc6-19662d7a88d4,Patient reports persistent fatigue over 3 weeks.,Dr. Patel,2022-04-16
+7ffb0dba-c74f-4273-a144-36898dd95c1a,de3cc8fa-213c-4439-8c48-a48c4b16fd4f,49994c98-acc5-4a00-9cc6-19662d7a88d4,Patient experiencing chronic cough and weight loss.,Dr. Patel,2022-09-09
+9bdec2f8-3d1d-4ec1-a043-8c2b69c7c24d,0c65a08a-cacd-4f91-afa7-89266c83b436,f83e17fa-0814-4d1f-956e-172d6890c108,Patient experiencing chronic cough and weight loss.,Dr. Adams,2024-04-23
+25630003-971e-4dd9-805c-6ef56c071e5d,630c9274-1b96-46b4-ae99-111a1d4aa078,f83e17fa-0814-4d1f-956e-172d6890c108,Patient experiencing chronic cough and weight loss.,Dr. Lee,2023-08-11
+b0707dac-4489-42bd-873b-0870a8d61443,8bdde54e-d5c5-4900-95ae-f202b55afd8f,f83e17fa-0814-4d1f-956e-172d6890c108,Patient experiencing chronic cough and weight loss.,Dr. Nguyen,2023-05-12
+edf17b89-c5a2-4a16-aac6-5553c509b3af,ccb25c4a-9acb-4853-a89d-6a1712e804ba,f83e17fa-0814-4d1f-956e-172d6890c108,Follow-up visit. Symptoms improving.,Dr. Patel,2024-12-17
+95df72ba-82ed-4b5e-9913-a88673377450,c6cc8793-6324-44c4-ba07-397d4745925b,f83e17fa-0814-4d1f-956e-172d6890c108,Follow-up visit. Symptoms improving.,Dr. Lee,2022-02-17
+eeab6d38-a4af-45b3-ae25-a5690d58a726,acda6dc3-f700-4d89-a12b-5e5450a74acf,f83e17fa-0814-4d1f-956e-172d6890c108,Follow-up visit. Symptoms improving.,Dr. Lee,2023-05-10
+ca2f5157-f553-43e3-a136-eaee65b32556,836b0d35-9b4e-49d7-af32-83bbbfd52167,d7634ea2-d263-426c-a418-5afff21e3092,Patient reports persistent fatigue over 3 weeks.,Dr. Lee,2023-02-25
+4c696894-d84c-4ecc-b3cc-abb585b4c590,a0ca8fed-9b55-4f97-8665-d574d5f2a738,d7634ea2-d263-426c-a418-5afff21e3092,Follow-up visit. Symptoms improving.,Dr. Nguyen,2024-09-02
+b56f7cfb-f2ce-42c8-b39c-19aff6adebb7,a44077b6-f219-4d25-b210-2862de515739,20dd1c26-2b3d-4e54-91fb-5c066196aae6,Patient experiencing chronic cough and weight loss.,Dr. Adams,2024-04-24
+fb32535a-3db3-4567-b652-a1ce909e7cde,87deea4a-508a-41d8-baae-84ddedd0ec16,20dd1c26-2b3d-4e54-91fb-5c066196aae6,Patient experiencing chronic cough and weight loss.,Dr. Patel,2022-04-28
+1e61c39a-5618-4e2f-bca8-d5cd11cd2f0d,341cffcf-2321-4856-8aaa-477ddd5b0b5c,20dd1c26-2b3d-4e54-91fb-5c066196aae6,Patient experiencing chronic cough and weight loss.,Dr. Adams,2022-07-01
+c1ac6601-5203-4a5a-b91c-8eb128dcac57,77873fcf-0e0b-448e-86d2-04bacffba16b,d6a4c709-4bb4-4ca8-86e7-835c999f07b7,Patient experiencing chronic cough and weight loss.,Dr. Nguyen,2022-10-26
+1f0d9d99-4870-413f-8795-a722609e0073,cdf1d0fd-0a9d-4979-9ef3-d98bb580d0fb,d6a4c709-4bb4-4ca8-86e7-835c999f07b7,Patient reports persistent fatigue over 3 weeks.,Dr. Lee,2023-10-20
+a9fc289b-280d-4c47-a572-3d9de01b179e,02d07eb5-b217-4eca-a39a-4e7052612128,d6a4c709-4bb4-4ca8-86e7-835c999f07b7,Follow-up visit. Symptoms improving.,Dr. Lee,2023-04-23
+d4790e5e-d623-4f85-a72b-bf43a87c93e1,7d572d2f-7874-4e1e-a865-14b7db256627,620b2cbe-8e67-4c40-8270-d0301c1e1208,Follow-up visit. Symptoms improving.,Dr. Patel,2022-07-17
+fdef13b9-306f-4ce1-af93-cb7e10abd7e5,438faea5-8d7d-4bef-9828-cd40e52b772a,620b2cbe-8e67-4c40-8270-d0301c1e1208,Routine annual physical exam.,Dr. Adams,2024-10-27
+d6bde346-d54a-4d0d-ace5-59e42d157905,53031224-2997-44a7-96aa-4ca73ceeabcd,620b2cbe-8e67-4c40-8270-d0301c1e1208,Patient reports persistent fatigue over 3 weeks.,Dr. Patel,2024-10-27
+ed0a2e78-43d8-4497-bf00-8abe6779a96d,df34db09-e37c-4301-9e2b-b0c66511a6d2,842972a1-b1f0-447d-8ae3-9b34a0b665e2,Routine annual physical exam.,Dr. Nguyen,2023-05-05
+4e172bf7-84eb-4bdd-ba37-86551e5fe690,57c2372f-b4b7-4fbf-b90e-b1883f80ab5b,842972a1-b1f0-447d-8ae3-9b34a0b665e2,Follow-up visit. Symptoms improving.,Dr. Nguyen,2024-09-11
+d9c8c8b7-9456-4a34-831b-08198ab94150,14b543be-516c-4fe0-9c34-317378a34fcc,842972a1-b1f0-447d-8ae3-9b34a0b665e2,Routine annual physical exam.,Dr. Adams,2022-06-16
+d507e582-74fb-4ed0-a986-11027c764232,c01b4549-50aa-4633-aa6b-02ae1b5056d3,842972a1-b1f0-447d-8ae3-9b34a0b665e2,Patient experiencing chronic cough and weight loss.,Dr. Lee,2023-04-17
+cde7c4e3-ab9f-4fc1-9663-8d3ba4dd355b,47c2cb53-c263-44ab-a8eb-c2561d747abb,842972a1-b1f0-447d-8ae3-9b34a0b665e2,Patient reports persistent fatigue over 3 weeks.,Dr. Lee,2022-01-03
+09a99bd0-b1a7-4a58-bee8-6c47552d2d78,636e8777-84ee-472d-bacd-15e149160e02,842972a1-b1f0-447d-8ae3-9b34a0b665e2,Patient experiencing chronic cough and weight loss.,Dr. Nguyen,2022-01-27
+7982b7db-4ffb-4672-afa8-d833407194eb,cae6fd25-dac7-4a55-b606-37937e3e9b81,c29e006b-a4bb-4953-ae32-b6489c700578,Patient reports persistent fatigue over 3 weeks.,Dr. Adams,2023-08-12
+a6033281-29d6-4b4f-943d-c334dce4632c,d604761c-0bc3-4655-801d-c1106fc30105,c29e006b-a4bb-4953-ae32-b6489c700578,Follow-up visit. Symptoms improving.,Dr. Patel,2022-08-24
+13a8c2e2-bdde-424c-992d-b974b67cb890,097b123f-b346-4c38-8c10-7e607d97d2ec,c29e006b-a4bb-4953-ae32-b6489c700578,Patient reports persistent fatigue over 3 weeks.,Dr. Nguyen,2023-08-20
+ca14d1ec-9cc7-4b77-92a7-2bf1acebf4e8,2fc8777e-832e-4353-a171-807617ca3f66,86c38268-9541-40be-9535-d0633c5ab36e,Patient reports persistent fatigue over 3 weeks.,Dr. Patel,2024-10-05
+da745793-5e6a-4bc5-bf56-0e6e06f8d661,3f2d783b-6c67-4ff2-a9c4-4cf9bc1c0621,86c38268-9541-40be-9535-d0633c5ab36e,Routine annual physical exam.,Dr. Patel,2024-09-20
+6d25e4d4-9765-4ae8-a3ef-61fedf522a43,720de0a6-222d-49cb-96e1-a122c86e2648,86c38268-9541-40be-9535-d0633c5ab36e,Patient experiencing chronic cough and weight loss.,Dr. Patel,2024-01-08
+72eef301-e662-4c56-9584-3b19456d6e54,3ad50e44-b836-4679-a7e7-bed0934b307c,86c38268-9541-40be-9535-d0633c5ab36e,Follow-up visit. Symptoms improving.,Dr. Adams,2022-06-16
+c33d5afd-c744-4673-b008-215ca41ad087,91b4845f-ab1f-4347-a212-7ccbaf1b2c9b,86c38268-9541-40be-9535-d0633c5ab36e,Routine annual physical exam.,Dr. Adams,2024-01-16
+7fe8c749-8fd1-49a9-bac2-2fc09675c7b5,7d090c89-3aa4-4aad-905b-6deb855f21da,86c38268-9541-40be-9535-d0633c5ab36e,Patient reports persistent fatigue over 3 weeks.,Dr. Adams,2023-02-23
+cfc7f799-470e-4594-9194-991adb197ee2,c78b7686-4e7a-4147-9126-9df394ad95a8,1c0bda41-61ea-4428-b479-5a543a5225e8,Patient experiencing chronic cough and weight loss.,Dr. Lee,2023-04-04
+62920fe9-4181-43ac-af12-fb5f4405cd72,82c242b4-8d31-4361-823f-43b6706cb373,1c0bda41-61ea-4428-b479-5a543a5225e8,Patient reports persistent fatigue over 3 weeks.,Dr. Nguyen,2023-02-20
+3adb6577-72fb-4eaa-804c-981f4712aed4,64906c8e-5133-4d05-ad2a-d9fff030a9c1,1c0bda41-61ea-4428-b479-5a543a5225e8,Follow-up visit. Symptoms improving.,Dr. Nguyen,2022-05-28
+3079caaf-301e-4901-8452-d0767df61447,31c484d1-9dc6-4bfe-a36e-c9550e619800,1c0bda41-61ea-4428-b479-5a543a5225e8,Patient reports persistent fatigue over 3 weeks.,Dr. Adams,2022-04-14
+6311b907-df22-4048-9eef-b898ed8fd2de,421d7dcd-111f-4cdc-ab71-5b883871dd02,dc6a9fc1-ccfb-4b74-b181-9557294c680c,Follow-up visit. Symptoms improving.,Dr. Lee,2024-09-20
+fc2f7aec-63e7-4253-a6d8-384fb9779a76,63d1aed4-fd7c-4177-acdc-07eb253e90f4,dc6a9fc1-ccfb-4b74-b181-9557294c680c,Routine annual physical exam.,Dr. Lee,2024-11-08
+ffbe24fa-16de-450f-a3ad-46b3c3a14d7b,f8104db2-d940-475f-a9a7-1f92245dd024,dc6a9fc1-ccfb-4b74-b181-9557294c680c,Patient reports persistent fatigue over 3 weeks.,Dr. Nguyen,2022-06-27
+32e8ead8-30c3-4532-b2fc-70c4de66d620,c437644e-f756-49d2-9f46-ee8d3823064b,53226aba-a0cd-4f7b-b7d8-d70efc12f73c,Patient experiencing chronic cough and weight loss.,Dr. Lee,2022-08-05
+b33c2ef2-6151-4ca2-afba-4b190dd94690,9ebaa0e6-3428-4abc-930e-f109cf7e42aa,53226aba-a0cd-4f7b-b7d8-d70efc12f73c,Patient experiencing chronic cough and weight loss.,Dr. Patel,2024-01-07
+033d6092-e501-4cae-b31a-050accfb8590,168ead43-534c-4af7-8007-f958df5b676d,53226aba-a0cd-4f7b-b7d8-d70efc12f73c,Patient experiencing chronic cough and weight loss.,Dr. Nguyen,2022-11-14
+53810f6e-c017-4214-aa3b-df22708b434c,7df9e71c-aa01-4e2d-b5d7-c20b136910b9,ed1eb579-3b9a-41c9-add1-a98847896e13,Patient experiencing chronic cough and weight loss.,Dr. Adams,2024-04-14
+400c5b4e-8497-475a-be49-0b4ae775a1ed,97023fc3-90d2-4635-9741-85417d1465da,ed1eb579-3b9a-41c9-add1-a98847896e13,Patient experiencing chronic cough and weight loss.,Dr. Adams,2024-02-25
+a153810f-d38f-4108-b301-ac16bdf2161c,7e9b71f8-a662-4548-91ef-f982c7c4d525,ed1eb579-3b9a-41c9-add1-a98847896e13,Patient experiencing chronic cough and weight loss.,Dr. Patel,2023-06-03
+3824bf9d-3344-4cd6-85fd-f15da9bc6169,4bfbde69-5902-43db-be4e-d9e2e4c544db,2b8d5391-e8d9-44d3-bccd-7a65ff08270c,Patient reports persistent fatigue over 3 weeks.,Dr. Patel,2024-07-16
+1e9d055a-f9c3-47b0-896d-a66e81b4656b,0cbaca5b-613d-46b4-9957-77a4f1eb149c,2b8d5391-e8d9-44d3-bccd-7a65ff08270c,Patient experiencing chronic cough and weight loss.,Dr. Adams,2024-02-17
+2d4b4433-2575-4894-8f5d-7e20b3b38483,3bbdf365-d633-48c7-bc9e-f586e01078c8,2b8d5391-e8d9-44d3-bccd-7a65ff08270c,Patient experiencing chronic cough and weight loss.,Dr. Adams,2022-09-07
+481a52d9-c5b8-445c-92a9-2dd74d513e0f,8c02f328-b8cf-4e2b-b5b6-1c03b49cbf61,2b8d5391-e8d9-44d3-bccd-7a65ff08270c,Patient experiencing chronic cough and weight loss.,Dr. Lee,2023-09-25
+7864dd70-b706-4887-bb3d-1c2e5a26cb26,7e9c4233-b9fa-4051-823a-d4405251d569,2b8d5391-e8d9-44d3-bccd-7a65ff08270c,Routine annual physical exam.,Dr. Adams,2023-03-04
+1e91b92c-d3db-4b08-a1fc-1066efd7797a,1e53d16e-1bb0-45ca-a97a-9501c409a957,041948ea-344c-42c0-863e-04a475f79524,Patient reports persistent fatigue over 3 weeks.,Dr. Lee,2023-12-28
+0fa6b33f-53e0-4f84-8111-0873d5a609be,00f0aa4a-3826-4572-b954-0db2c8844d9c,041948ea-344c-42c0-863e-04a475f79524,Routine annual physical exam.,Dr. Nguyen,2024-09-06
+3c80a9f2-9a68-4b8d-b75b-075d695289b5,9e27aa49-e9a1-4992-a49e-2d2c06a5c365,041948ea-344c-42c0-863e-04a475f79524,Routine annual physical exam.,Dr. Lee,2022-07-19
+8e84b48a-6bfe-483e-8914-28ab69170f3a,c444ce3a-2192-439a-95c4-07eab6c3b59a,041948ea-344c-42c0-863e-04a475f79524,Patient reports persistent fatigue over 3 weeks.,Dr. Adams,2022-12-09
+b9bebbab-3155-499f-bf1c-1fe90f3b0074,5065c294-7b1e-4cac-9d43-76f0f173c00f,041948ea-344c-42c0-863e-04a475f79524,Follow-up visit. Symptoms improving.,Dr. Lee,2022-09-08
+e4e8c861-b459-4f81-8b82-de133e0a3220,99ddcb5a-5492-4e00-b415-0b9d7fb213a8,041948ea-344c-42c0-863e-04a475f79524,Patient reports persistent fatigue over 3 weeks.,Dr. Nguyen,2023-05-22
+83faac23-9630-4fc4-a69b-e35326747a38,a80097c1-0542-4f8f-b208-715c32b610ad,111d109f-ec75-4d2c-b9f2-62096b6d2599,Follow-up visit. Symptoms improving.,Dr. Nguyen,2024-09-06
+04964663-e2af-40b0-8069-a88c415e323e,45d4e5c6-2993-42bc-972f-81cd6c756cb8,111d109f-ec75-4d2c-b9f2-62096b6d2599,Routine annual physical exam.,Dr. Lee,2022-07-26
+4afb4183-c229-4b86-9be4-0faafc10d412,2c544717-ab8f-40d0-bf09-42df715eb7b7,111d109f-ec75-4d2c-b9f2-62096b6d2599,Patient reports persistent fatigue over 3 weeks.,Dr. Adams,2022-03-15
+47428b08-d90d-4d5d-9889-80a2b8efa1b4,8ade7294-f11b-47aa-bfb2-44611d3b8693,111d109f-ec75-4d2c-b9f2-62096b6d2599,Patient reports persistent fatigue over 3 weeks.,Dr. Nguyen,2023-03-10
+99f02ee5-6655-4d9c-909d-a230a92b04b8,699d20d8-3784-4188-818c-8abe4b0396b2,19ebd262-dba6-4015-9fdf-53194d537069,Routine annual physical exam.,Dr. Nguyen,2022-04-06
+3f8444ba-e231-4fc6-82df-b73b39cc0f97,0383ed23-e0e6-4d5e-9039-d69e1c298bfb,19ebd262-dba6-4015-9fdf-53194d537069,Follow-up visit. Symptoms improving.,Dr. Nguyen,2023-09-06
+48fa1b58-dc91-4cca-a3db-1b1d095508cb,5e36b6b9-d467-4011-b2a4-5c82715723a3,19ebd262-dba6-4015-9fdf-53194d537069,Patient reports persistent fatigue over 3 weeks.,Dr. Patel,2022-07-07
+cea1d724-3863-415f-b1cd-d1dcf2740125,ee44d5d0-d735-4ecd-8e79-089e15b83d11,19ebd262-dba6-4015-9fdf-53194d537069,Follow-up visit. Symptoms improving.,Dr. Adams,2024-06-05
+e116218d-c1aa-4add-b7e3-4dd3704ca4fa,40726953-8bb5-43d4-8dec-36f951fc19c3,19ebd262-dba6-4015-9fdf-53194d537069,Routine annual physical exam.,Dr. Lee,2022-12-29
+373be466-cfbd-4f8e-adbe-b784826b1b75,a8f5aed0-c610-4ec7-bca1-392214ff404e,57899583-6a9f-4c59-82dc-8a1cc230eab6,Patient experiencing chronic cough and weight loss.,Dr. Nguyen,2022-11-25
+0d62b8e3-d7d2-4f57-ba7e-263a963b818f,ef0b260b-92ff-4448-98b6-f11a98f85282,57899583-6a9f-4c59-82dc-8a1cc230eab6,Patient experiencing chronic cough and weight loss.,Dr. Patel,2023-07-21
+5ef274f7-fb13-4a22-840c-531cdef1bcd3,9b8e41cc-bb98-4160-accc-7b8c0bf331fd,57899583-6a9f-4c59-82dc-8a1cc230eab6,Follow-up visit. Symptoms improving.,Dr. Nguyen,2024-03-24
+5b614fd3-6c86-4355-93ca-6b770163ce7c,f768141b-fb3c-4d00-b6a7-b7b47ac2cdfa,7dbae670-f530-4a95-8f3a-ed84ed134887,Patient experiencing chronic cough and weight loss.,Dr. Patel,2022-02-15
+93723b82-d38f-4dfa-bd54-3bc4a8539b1e,f33d6e7a-6b9d-4d1f-9ffa-78165becb72a,7dbae670-f530-4a95-8f3a-ed84ed134887,Patient reports persistent fatigue over 3 weeks.,Dr. Nguyen,2024-01-22
+7c2069fc-97c0-44ca-9ad1-c9e5414e6609,eb4f8708-0172-449a-a3ab-218a3f4d4514,7e608c35-c39b-4857-8719-c1b56880876c,Follow-up visit. Symptoms improving.,Dr. Patel,2022-12-19
+36e61b51-370b-4591-9950-ecd60a540629,ecbc7abb-c407-4ab1-9579-1f3974b9d9f4,7e608c35-c39b-4857-8719-c1b56880876c,Routine annual physical exam.,Dr. Lee,2024-01-22
+2e6460ae-a677-4d46-9345-7082d92f1313,e7507414-5f2e-4f65-8d1f-34d83582a578,7e608c35-c39b-4857-8719-c1b56880876c,Patient reports persistent fatigue over 3 weeks.,Dr. Lee,2024-12-09
+8860570a-3f69-4441-b104-f1baafc5b124,e9dc7567-7080-4d64-88a1-e8dfebde1c72,7e608c35-c39b-4857-8719-c1b56880876c,Routine annual physical exam.,Dr. Adams,2022-01-09
+220b0cc0-2aa8-405a-a908-6a34a30dc94a,170a0eeb-b3ac-4414-995a-ca5061c22e4f,7e608c35-c39b-4857-8719-c1b56880876c,Routine annual physical exam.,Dr. Lee,2022-08-03
+8ec3dcb7-3d7f-49c3-b054-3d238ffff5f0,c29bdc27-5f3c-4f9a-8f0e-f2ae3fd627ab,7e608c35-c39b-4857-8719-c1b56880876c,Routine annual physical exam.,Dr. Adams,2022-07-13
+c5426a07-0631-45a1-85f5-31b70ad1e87d,eec04f63-d3e8-401e-b316-377df48fb993,187fcda7-f142-4eae-995c-52da8de62947,Follow-up visit. Symptoms improving.,Dr. Patel,2024-09-16
+bbb7a425-da35-4d5d-8274-930c2242074d,ea5f56eb-54c0-46f2-bd2f-60c85fa59bf7,187fcda7-f142-4eae-995c-52da8de62947,Patient experiencing chronic cough and weight loss.,Dr. Nguyen,2024-07-09
+b459a0ba-3b4c-4d30-9437-1112d65095fb,ff44a96d-b0d5-4ca3-87d9-82db92abb761,187fcda7-f142-4eae-995c-52da8de62947,Patient reports persistent fatigue over 3 weeks.,Dr. Patel,2024-06-10
+74188b4d-d63f-4b6c-9b8f-f53f8b357d4c,cfd22331-ba2d-4f9f-bd8a-1cacfe2fb1f1,2c013085-29b4-4e0d-8861-b52ebd2aaed6,Routine annual physical exam.,Dr. Patel,2024-07-26
+c39d1bcf-b2ec-4f65-8b0e-387293ba87b1,d426afc2-1e68-4548-991d-95a30d1f3e9d,2c013085-29b4-4e0d-8861-b52ebd2aaed6,Follow-up visit. Symptoms improving.,Dr. Patel,2022-07-10
+c877484e-16d2-43ed-a484-21ae8338a9a2,4d3bec10-f8ce-426f-afc4-8bd475eff341,2c013085-29b4-4e0d-8861-b52ebd2aaed6,Follow-up visit. Symptoms improving.,Dr. Nguyen,2024-03-20
+d50f1fde-1d22-47eb-a4a9-82579bd96090,f2835305-c501-4905-9f85-cd45ea83cac4,7ea17310-2d5e-4814-bd75-be36a2d6fd41,Patient experiencing chronic cough and weight loss.,Dr. Lee,2023-06-25
+3630673e-4b08-46cb-8ae8-02ed36bcd82c,42eb7913-bb6d-4214-89c1-b7e28c82f062,7ea17310-2d5e-4814-bd75-be36a2d6fd41,Patient experiencing chronic cough and weight loss.,Dr. Nguyen,2024-09-03
+02fad34e-1424-4495-9855-3eaa375cb358,6c3656c5-e5cb-40b6-ba42-4e31c4861055,7ea17310-2d5e-4814-bd75-be36a2d6fd41,Patient reports persistent fatigue over 3 weeks.,Dr. Adams,2024-08-17
+748b10d0-14cd-4613-96db-58ed4c4bf7dc,cc9296c2-dacb-484a-8111-c41051ea61a8,7ea17310-2d5e-4814-bd75-be36a2d6fd41,Follow-up visit. Symptoms improving.,Dr. Patel,2022-08-03
+d58b29f2-2caa-49ae-af4d-0270af8e96d2,87ea3140-69d6-4f42-9a92-d9898ee352d6,7ea17310-2d5e-4814-bd75-be36a2d6fd41,Routine annual physical exam.,Dr. Nguyen,2024-12-12
+043e6348-3c28-452a-b951-bd4b2bc856fa,64043d2a-9f09-447d-aaed-dd9f6ec05d48,1b182bd7-870f-44da-bd16-a7297b0001ff,Routine annual physical exam.,Dr. Lee,2024-11-05
+466e29eb-a35b-4ce1-901e-e4654b1b45b6,09234748-692b-4420-8a17-a6c7b16593cd,1b182bd7-870f-44da-bd16-a7297b0001ff,Routine annual physical exam.,Dr. Adams,2024-02-04
+fbd98025-c8a2-4149-bc5a-c28afee3fb93,1648d2f9-0141-48f7-b866-c0674bceaa11,82795477-101e-41cf-bc65-4740e815e69c,Patient experiencing chronic cough and weight loss.,Dr. Patel,2024-06-27
+fbea02a3-5a89-4ed5-9f60-614da3dcf178,9f39284a-1951-44b2-9fd9-cbe958ca3cc7,82795477-101e-41cf-bc65-4740e815e69c,Patient reports persistent fatigue over 3 weeks.,Dr. Nguyen,2022-08-07
+1205d94f-4e09-4317-93bc-8c805370e986,7d4b4a62-16e0-492b-b424-a075a872beb0,82795477-101e-41cf-bc65-4740e815e69c,Patient reports persistent fatigue over 3 weeks.,Dr. Nguyen,2023-11-24
+957e54aa-8fd8-449c-b4b4-cc70bd67c75e,8a39851d-37d2-4fd8-90d2-ed607486965b,748fedf9-0478-4024-877a-8d720bcbcce0,Follow-up visit. Symptoms improving.,Dr. Adams,2023-08-13
+3ad8ebc4-2d23-4f56-a456-9bb977c72967,07c89833-3c03-4502-b344-ef6c21561e41,748fedf9-0478-4024-877a-8d720bcbcce0,Patient experiencing chronic cough and weight loss.,Dr. Lee,2024-01-04
+27232f3d-6c73-4b11-ad4e-38126435a7fa,47bf1eae-9fc4-400e-8be9-1c9e10335c47,748fedf9-0478-4024-877a-8d720bcbcce0,Routine annual physical exam.,Dr. Adams,2023-12-20
+4721da62-b6a7-4ed9-82c0-84af0babed06,c143eb8e-76de-4c93-afd1-fdb0a0e8a825,748fedf9-0478-4024-877a-8d720bcbcce0,Routine annual physical exam.,Dr. Adams,2023-01-02
+a77f38d4-0bc9-463d-a974-0d39d9b69401,bd10f54d-c867-4200-aa52-3dc1b26be435,25f28eb8-997d-4e62-afa4-ea5ea4fd6d10,Routine annual physical exam.,Dr. Nguyen,2023-12-19
+2b84d4fe-d29e-4733-85c7-58d52e5c98e9,eb185299-b718-4b80-855b-d5e6d7926b6d,25f28eb8-997d-4e62-afa4-ea5ea4fd6d10,Routine annual physical exam.,Dr. Adams,2022-11-11
+f4d260ed-ce34-4110-941a-d360272c7f13,dbe51cab-242a-45a9-bc9d-93c6cf191e09,25f28eb8-997d-4e62-afa4-ea5ea4fd6d10,Follow-up visit. Symptoms improving.,Dr. Nguyen,2022-03-20
+88a90a98-924d-4e2d-a7dd-7358da8b27a6,47f3c6de-4d57-474d-834f-bc06d45147d5,25f28eb8-997d-4e62-afa4-ea5ea4fd6d10,Patient experiencing chronic cough and weight loss.,Dr. Nguyen,2023-07-03
+df3bbc08-0b23-4421-8ffe-ea41385786ae,9b7b0ff9-519d-4716-8015-30388b4625a1,25f28eb8-997d-4e62-afa4-ea5ea4fd6d10,Patient experiencing chronic cough and weight loss.,Dr. Adams,2024-04-20
+51cf81cb-3c9e-4ba9-979f-9560e9a6eab0,ea449dda-5212-4467-81ca-6a86ff4be81d,0db650bd-8987-4930-8912-a7596b4b599d,Patient experiencing chronic cough and weight loss.,Dr. Lee,2022-07-04
+475562aa-10c4-435b-9732-63b7a3a506f5,c5fe139e-d83d-432e-872b-4980cf452774,0db650bd-8987-4930-8912-a7596b4b599d,Patient experiencing chronic cough and weight loss.,Dr. Adams,2023-08-16
+87ebe6ee-4c20-489e-8813-a0109b575be3,7d9726b2-b6e8-4b7b-9863-29e4d43415db,0db650bd-8987-4930-8912-a7596b4b599d,Patient experiencing chronic cough and weight loss.,Dr. Patel,2022-05-05
+f545a0b9-1452-4fab-b8c3-0f2fc4c6b66b,094d4a03-f690-4158-a301-c736c1ff32ff,0db650bd-8987-4930-8912-a7596b4b599d,Patient reports persistent fatigue over 3 weeks.,Dr. Adams,2022-01-05
+ff9fc26f-0174-4dd8-9155-a9ef82bc1429,9cc4ed9b-fd10-4943-bd62-20643ffd218b,0db650bd-8987-4930-8912-a7596b4b599d,Routine annual physical exam.,Dr. Nguyen,2022-05-08
+d2c2e3b5-906a-4877-8daa-7cc93f5b3b94,16797657-2131-4502-bf87-202a86e5ba03,1ad652ad-fded-4b6d-9533-165cdfdc523d,Patient reports persistent fatigue over 3 weeks.,Dr. Lee,2022-02-17
+f241d86c-e2eb-441f-823c-655bc0104991,85f946b7-172f-410e-b320-dfb3776e281c,1ad652ad-fded-4b6d-9533-165cdfdc523d,Patient experiencing chronic cough and weight loss.,Dr. Nguyen,2024-06-07
+c8ff5c0f-9a9b-48df-a568-2def10a80331,a258f86b-a28e-472d-8cde-1c71fa1e8a30,1ad652ad-fded-4b6d-9533-165cdfdc523d,Patient experiencing chronic cough and weight loss.,Dr. Adams,2024-02-11
+7c7225a8-18ca-484a-a931-c8877afd3605,07800f7e-2299-42be-a7de-9496cb832219,1ad652ad-fded-4b6d-9533-165cdfdc523d,Follow-up visit. Symptoms improving.,Dr. Adams,2024-03-10
+1abb2fcb-cf49-4a81-adf9-97b29621e53c,e578d521-92be-4c52-965c-d7431259b758,1ad652ad-fded-4b6d-9533-165cdfdc523d,Patient reports persistent fatigue over 3 weeks.,Dr. Lee,2024-01-15
+66632f3c-b9c5-4c07-b928-ee286454dec8,7cc00193-2b1b-4a42-8300-2bfaa146e93c,b8942ab3-3d97-4ffe-a167-af3604cc3600,Patient experiencing chronic cough and weight loss.,Dr. Adams,2022-04-05
+83f55618-afe7-459e-ada0-6a150b515f0d,42093dc3-baa4-4db8-b738-3cac7c171d93,b8942ab3-3d97-4ffe-a167-af3604cc3600,Follow-up visit. Symptoms improving.,Dr. Adams,2023-12-13
+7846f5af-0553-4ec3-a225-da746ec763eb,ca26be35-7c57-4d1f-a100-438118a13e0c,86debf4a-5d6f-44c7-8ec5-d89c774c983e,Follow-up visit. Symptoms improving.,Dr. Adams,2023-09-19
+d5d7b92d-f560-4b36-a03f-6fbf491e3d6f,e3c9fabf-300c-4520-b980-4454e502ee09,86debf4a-5d6f-44c7-8ec5-d89c774c983e,Patient experiencing chronic cough and weight loss.,Dr. Nguyen,2023-01-26
+0587ec0f-517f-418e-8f7f-4127a1902220,0c56cd28-bc8a-4f64-a61c-72a798d4e456,86debf4a-5d6f-44c7-8ec5-d89c774c983e,Follow-up visit. Symptoms improving.,Dr. Patel,2022-11-05
+83d9a377-7777-46d3-8a71-98293d693011,92aa2b5c-a452-4b04-8c7a-246d6666e205,86debf4a-5d6f-44c7-8ec5-d89c774c983e,Follow-up visit. Symptoms improving.,Dr. Lee,2024-01-16
+0ace1417-3800-4ba7-9ca5-8598e1530a85,3ad171e8-a791-4402-8261-2b1ece203d66,86debf4a-5d6f-44c7-8ec5-d89c774c983e,Routine annual physical exam.,Dr. Lee,2023-02-22
+c572d3bd-8e56-4791-81b2-0ebb437be7fb,be7451de-b1fe-4c53-8eba-c21785551409,6be0391a-8b7d-4ab6-b389-d33c4489a40e,Routine annual physical exam.,Dr. Adams,2024-12-20
+f79ed0ed-47cb-4df7-bfaf-8512e8901faa,d78d83a8-15bd-4621-942e-9c5893d96151,6be0391a-8b7d-4ab6-b389-d33c4489a40e,Routine annual physical exam.,Dr. Nguyen,2024-10-25
+6b089a34-bd46-4405-b508-c5c128eb3a89,4dfec96a-305f-480d-8b05-af288115258a,6be0391a-8b7d-4ab6-b389-d33c4489a40e,Patient experiencing chronic cough and weight loss.,Dr. Nguyen,2023-05-16
+b4034244-f0eb-4d9e-a9c9-37d3fb70e67d,7c1031e8-8c29-4581-9542-52f4b570a776,6be0391a-8b7d-4ab6-b389-d33c4489a40e,Patient experiencing chronic cough and weight loss.,Dr. Patel,2024-03-28
+0fb179bf-7b00-425a-a2b2-db737a217e7a,c830267d-71a4-4fa3-b1f7-eddff515712f,5800c09e-3f54-4b3a-82ac-2acf1d9a5798,Patient experiencing chronic cough and weight loss.,Dr. Lee,2023-11-23
+6f99d578-45e8-4bd7-bd0a-d3afc1b6a9fa,6c7246a9-5307-4251-af6d-291a98d471cf,5800c09e-3f54-4b3a-82ac-2acf1d9a5798,Patient reports persistent fatigue over 3 weeks.,Dr. Lee,2023-01-28
+1e881b06-9235-4adf-846b-517859730e10,c16e1eca-b9a9-4b20-ad37-1fa16a85ba78,5800c09e-3f54-4b3a-82ac-2acf1d9a5798,Routine annual physical exam.,Dr. Nguyen,2022-12-12
+2f41b663-9fc7-4081-9c0f-8cb43a0f4d82,b90b9827-290e-40e2-a439-97f5f01e69ff,5800c09e-3f54-4b3a-82ac-2acf1d9a5798,Patient reports persistent fatigue over 3 weeks.,Dr. Nguyen,2024-04-18
+57f39339-9a74-4922-b246-31a0f5e45151,af200b7e-ae62-4ec4-92b6-992357ce2f32,5800c09e-3f54-4b3a-82ac-2acf1d9a5798,Routine annual physical exam.,Dr. Nguyen,2023-01-16
+bdaf46bd-7deb-4ed6-909a-89e967c54aa7,347c4be9-3218-4d03-8b6f-ff2a1ed80292,91502399-5d71-468e-83bb-597acd9a1cc8,Patient experiencing chronic cough and weight loss.,Dr. Adams,2022-01-29
+fee12c8a-f5eb-4f60-af7c-f708bc51792b,c4845a60-afa3-4132-8130-8e7e7c7152f1,91502399-5d71-468e-83bb-597acd9a1cc8,Routine annual physical exam.,Dr. Lee,2022-12-24
+070cd87d-6317-4089-a1e6-dbfede5af37c,1bc07e73-eb59-4349-9988-e5c716f50cdc,91502399-5d71-468e-83bb-597acd9a1cc8,Patient reports persistent fatigue over 3 weeks.,Dr. Patel,2024-06-22
+e5864be0-ac20-4489-ac4f-960ee2635e1f,01695389-e5e3-47e8-87b0-18614c45f44a,91502399-5d71-468e-83bb-597acd9a1cc8,Follow-up visit. Symptoms improving.,Dr. Patel,2022-11-07
+628bccbc-0f02-45e8-b89b-a6467d33435d,52b163a0-644b-476d-9161-547c0736b50e,7af47a47-25fb-4167-903c-809d08ac2e4c,Routine annual physical exam.,Dr. Nguyen,2023-07-06
+3230b271-c782-4378-bbdd-524d09bbc7ef,2510b4a6-30b3-4e28-970c-206f99dc83d3,7af47a47-25fb-4167-903c-809d08ac2e4c,Patient experiencing chronic cough and weight loss.,Dr. Patel,2023-10-04
+cff6b8fe-0e90-48fc-a621-e96215a28340,8017be35-62e1-417c-aef1-ccee90ba74f3,7af47a47-25fb-4167-903c-809d08ac2e4c,Patient reports persistent fatigue over 3 weeks.,Dr. Patel,2023-07-25
+2f2ceefa-47f6-4285-9cc7-ca69e38ed383,d745947e-5a09-4fdf-8200-80190a484551,7af47a47-25fb-4167-903c-809d08ac2e4c,Patient reports persistent fatigue over 3 weeks.,Dr. Nguyen,2023-03-19
+c1128ea9-6076-4e03-a3f1-47b794489e93,75f0aca3-e84b-49d9-8158-8c68d32d3300,9ca5a031-3d86-4f98-a585-60df2dae9e9d,Routine annual physical exam.,Dr. Lee,2024-12-25
+e2726e7d-d3a7-4d8e-86e6-355bdf448a2c,0154f6cb-a15e-4e73-ad35-c0d2220ec952,9ca5a031-3d86-4f98-a585-60df2dae9e9d,Follow-up visit. Symptoms improving.,Dr. Patel,2022-02-07
+e0a8ffeb-6982-41c6-91dd-654ae490dcbc,b0bca45a-5aa1-43ea-8d5c-776c9a7f07e7,9ca5a031-3d86-4f98-a585-60df2dae9e9d,Patient experiencing chronic cough and weight loss.,Dr. Patel,2023-06-07
+120f2d47-5d0d-4fe5-ad17-db226c6bd624,57526e73-5782-45fa-a05b-25f136f490b9,9ca5a031-3d86-4f98-a585-60df2dae9e9d,Follow-up visit. Symptoms improving.,Dr. Nguyen,2024-06-28
+ab881025-39d1-4adc-80b4-0894c48eb0e1,9e2b5eca-8c15-4dcc-8587-86d1ff62eef4,9ca5a031-3d86-4f98-a585-60df2dae9e9d,Patient reports persistent fatigue over 3 weeks.,Dr. Lee,2022-04-05
+0e382c75-981f-46f4-b282-c538c36bebe3,1c799aeb-d7e7-4148-95e5-d96cf0bfc4d0,9ca5a031-3d86-4f98-a585-60df2dae9e9d,Patient experiencing chronic cough and weight loss.,Dr. Lee,2024-03-30
+75899f67-8353-46c4-96f7-e6fa05d5216d,e0db8235-1417-40f4-af89-760104923b36,79ad6eb8-d23c-4a68-8620-670b617e213a,Patient experiencing chronic cough and weight loss.,Dr. Adams,2022-10-01
+8676e77f-0f15-4897-ab86-229de9659acb,16e7cbcc-0a6c-4a72-818e-69e51048d84e,79ad6eb8-d23c-4a68-8620-670b617e213a,Patient reports persistent fatigue over 3 weeks.,Dr. Lee,2022-03-18
+61333d4d-4785-4f8e-ba62-ae7578971d78,53644e93-c818-4042-a6da-aa2c2b16ef46,79ad6eb8-d23c-4a68-8620-670b617e213a,Patient reports persistent fatigue over 3 weeks.,Dr. Lee,2024-07-25
+d377f77a-1c6c-485a-b72f-56c4e8ec0d6b,d6dd5069-db47-41bb-83f8-df9f76686889,7d8dea8e-3ee2-4290-a0ee-532878558e7d,Follow-up visit. Symptoms improving.,Dr. Patel,2023-08-12
+0f2d5f26-17ef-46c2-93f0-39a2c2d8b163,d9da5cab-824c-47e2-a474-f97485256396,7d8dea8e-3ee2-4290-a0ee-532878558e7d,Routine annual physical exam.,Dr. Patel,2023-10-21
+e942c729-c71e-4864-aeae-8b6a987b05b9,b35c9d7b-f064-4f7d-a8d6-446ec0f0efb3,7d8dea8e-3ee2-4290-a0ee-532878558e7d,Patient experiencing chronic cough and weight loss.,Dr. Lee,2024-10-08
+08847074-45a9-400c-ba26-f1348152ad4a,1c2489de-4d1c-43a8-9b2f-3d1cd05c5828,7d8dea8e-3ee2-4290-a0ee-532878558e7d,Follow-up visit. Symptoms improving.,Dr. Lee,2024-03-04
+52713738-8ecf-405b-8cfa-da33afb52c52,a89b0e9f-f566-45b3-b78a-e9dd60b85e42,33eec70b-7414-4d9c-bad0-8e4e5316349f,Patient experiencing chronic cough and weight loss.,Dr. Patel,2024-02-04
+95b1a571-a495-46c5-92a6-6c3e4c2269f5,c9bf19c2-d1c2-4df7-a6b8-1dec955c93ab,33eec70b-7414-4d9c-bad0-8e4e5316349f,Routine annual physical exam.,Dr. Adams,2024-01-31
+d6eb55ff-dd71-43cb-8b25-e711345b2688,50abb269-8ca8-4838-a85a-bdd221e22921,33eec70b-7414-4d9c-bad0-8e4e5316349f,Routine annual physical exam.,Dr. Adams,2023-09-11
+4de4fcfc-0a5c-474f-8e1d-cb35ff0f9837,1f59e05d-3241-4b57-a4c2-779b1a3d04aa,5dca05a1-096b-42bc-905b-431090e84e63,Routine annual physical exam.,Dr. Adams,2024-08-07
+a8cc09b2-d11a-4240-8fbe-6487541502cf,6b5119c0-3deb-44eb-8c8d-22a2ed639f57,5dca05a1-096b-42bc-905b-431090e84e63,Routine annual physical exam.,Dr. Patel,2023-10-16
+4d3d06c8-6144-4bfc-87f8-e5c8fed80393,a839db70-bf2f-4379-b0e0-d5d2940819b1,28cd1c17-d99c-4792-bbb6-b5c555b03b56,Routine annual physical exam.,Dr. Adams,2022-01-02
+9ddb2336-6344-4bb3-85d6-b4216c2c3a6a,e0b262be-95ab-4982-a406-afa1a9402282,28cd1c17-d99c-4792-bbb6-b5c555b03b56,Patient reports persistent fatigue over 3 weeks.,Dr. Lee,2023-04-02
+2372bc10-0aad-425f-9eed-77bbe9e4ef7b,5b5114e7-7c2b-40c5-9511-a6cd776508cb,28cd1c17-d99c-4792-bbb6-b5c555b03b56,Patient reports persistent fatigue over 3 weeks.,Dr. Nguyen,2023-06-29
+663de7e3-cc52-46b1-8f45-e628c84c672c,5f17574e-3332-4a71-8b5a-aeafaab0b006,28cd1c17-d99c-4792-bbb6-b5c555b03b56,Routine annual physical exam.,Dr. Nguyen,2023-05-17
+86edecb2-fcbb-4dab-bc6e-21f8a5ae100d,c8e3743f-33fe-4056-bbea-7b39861ef7b8,28cd1c17-d99c-4792-bbb6-b5c555b03b56,Patient reports persistent fatigue over 3 weeks.,Dr. Lee,2023-11-14
+8cb11e1f-e77c-40dc-9f11-17362a914bcd,e431b7b6-e6b8-4e70-88b4-350ca5708354,3480c867-40fb-46eb-a094-11d2e2e5fdee,Patient experiencing chronic cough and weight loss.,Dr. Nguyen,2023-02-01
+37aeb954-5fef-4db6-8eb2-44d1bd92a4fd,02035b93-b8a1-4e0e-9e11-be3df862683d,3480c867-40fb-46eb-a094-11d2e2e5fdee,Patient reports persistent fatigue over 3 weeks.,Dr. Lee,2022-02-28
+66cb0e17-f8e6-45b9-9f39-323b3c10f48e,4d04e3cf-0e97-419b-963b-4d4b5b34c99a,3480c867-40fb-46eb-a094-11d2e2e5fdee,Patient experiencing chronic cough and weight loss.,Dr. Lee,2023-06-17
+b69cfbca-e81f-4713-a291-9f15668622fc,b4cc5f58-a732-4254-a0d1-fc99c7498d09,af491ed4-187d-4ce4-a25f-c6ee04230d7f,Patient reports persistent fatigue over 3 weeks.,Dr. Nguyen,2024-04-18
+88e42bc0-3db7-478f-8365-c3275cebcae8,e17c076a-c9ed-4878-9361-bf36255a9f32,af491ed4-187d-4ce4-a25f-c6ee04230d7f,Routine annual physical exam.,Dr. Nguyen,2024-11-19
+46d56f99-2717-4407-9b26-b4ade59b5bd8,2195d03d-da74-4b95-a242-a71f46f9002a,af491ed4-187d-4ce4-a25f-c6ee04230d7f,Follow-up visit. Symptoms improving.,Dr. Patel,2024-09-26
+f44a5eb4-a67c-4a22-beed-e16aa0ad617a,6a2ab806-1b05-46d4-952d-ef3f08dad803,af491ed4-187d-4ce4-a25f-c6ee04230d7f,Routine annual physical exam.,Dr. Nguyen,2024-01-25
+33285e6b-070b-4e7c-8bfc-5b03bb6b64e6,9f66cbbc-4507-445a-aa31-040e8fc58edc,00c5e23f-e169-4522-aa4b-089a7e0ddaf4,Follow-up visit. Symptoms improving.,Dr. Lee,2022-09-13
+933b414d-a200-4c60-9790-846d8dc3ff59,51132130-b7d0-4517-82d9-e4e37b8489ec,00c5e23f-e169-4522-aa4b-089a7e0ddaf4,Follow-up visit. Symptoms improving.,Dr. Adams,2024-03-07
+10552888-e9b6-47a4-8959-cdcb7aaf1e90,cac628bd-0100-43ce-94e8-0ba76e3e2398,be57cc46-67a0-4711-849c-e23fed8bb881,Routine annual physical exam.,Dr. Patel,2023-06-23
+efa1835c-8e49-4d1b-8eec-d9d9f59d958e,24d84321-7ba9-4221-8c36-3da977ea5b64,be57cc46-67a0-4711-849c-e23fed8bb881,Patient experiencing chronic cough and weight loss.,Dr. Nguyen,2022-09-07
+aac3ab37-0271-42ac-aad3-6e629e2c06bc,28a2e6b4-65d4-4d29-82e2-ad361fc304fe,be57cc46-67a0-4711-849c-e23fed8bb881,Routine annual physical exam.,Dr. Adams,2022-06-06
+2d60a04d-cad7-4081-88c6-078a12161a50,34dcf165-3560-4873-8912-47b493afe5e0,893bec9d-5caf-4a5a-9982-53f945199bf2,Routine annual physical exam.,Dr. Nguyen,2023-04-12
+ab17755c-d344-41d4-a70b-7d14c8932517,50a1c649-163d-441e-a3e3-e21e4286c9c3,893bec9d-5caf-4a5a-9982-53f945199bf2,Follow-up visit. Symptoms improving.,Dr. Nguyen,2022-09-09
+80dfa979-16b4-4442-9652-5e1ea60b8c3e,72d4e628-cbc0-4158-bf32-7be348d03d79,893bec9d-5caf-4a5a-9982-53f945199bf2,Patient experiencing chronic cough and weight loss.,Dr. Nguyen,2024-02-17
+fe67065d-b97c-4871-ae16-916fb71e1d06,f89657bc-e7cb-463b-8894-d5cb3f7b1468,893bec9d-5caf-4a5a-9982-53f945199bf2,Follow-up visit. Symptoms improving.,Dr. Nguyen,2022-04-04
+8e61a187-25b1-4bb4-ad92-01a152efe3f9,6199b623-181c-4985-ade0-e23138b85256,893bec9d-5caf-4a5a-9982-53f945199bf2,Routine annual physical exam.,Dr. Adams,2022-06-13
+864f28a7-bb94-448b-aaa8-b1856fa26fd5,bce4b122-1d78-44e9-8de7-6900b08ff36c,893bec9d-5caf-4a5a-9982-53f945199bf2,Routine annual physical exam.,Dr. Adams,2024-12-19
+b800c7b5-0c5d-4e12-9429-171bfe476c26,3465f9f7-0d21-4aab-8eb8-8b4d60dac881,3fe04a58-390b-4b8d-acb9-0f916a0ce102,Follow-up visit. Symptoms improving.,Dr. Adams,2022-07-21
+2373db18-85fd-4104-9cda-cf27e10f7f33,277b560a-b302-4460-9394-3ca6b66c51ea,3fe04a58-390b-4b8d-acb9-0f916a0ce102,Follow-up visit. Symptoms improving.,Dr. Nguyen,2022-02-04
+633936e8-dae9-4aae-9ea4-1fcae70231cc,324cc56e-9f54-4243-9250-51736c43d691,3fe04a58-390b-4b8d-acb9-0f916a0ce102,Follow-up visit. Symptoms improving.,Dr. Nguyen,2024-09-30
+49a811ef-a76f-4d6f-964a-be34270f3913,35cc9d39-2f97-4bd4-9b43-67cc12197197,3fe04a58-390b-4b8d-acb9-0f916a0ce102,Routine annual physical exam.,Dr. Patel,2022-02-10
+85075b64-3cfd-4691-9750-89a9e017d929,08b7e74c-3438-46df-afdf-f7a40a536bdd,10ffc9f5-9f57-45f9-9e3b-8ec4513f28e2,Follow-up visit. Symptoms improving.,Dr. Lee,2023-11-28
+33b10d20-5406-4304-a52e-a7f1280f0ebf,33a411e3-6ed4-4e50-a126-56bc062a1f92,10ffc9f5-9f57-45f9-9e3b-8ec4513f28e2,Patient experiencing chronic cough and weight loss.,Dr. Nguyen,2024-05-31
+2de6bf2e-8ff5-4fc1-8765-747a5499f863,e3697d2d-b6fc-4cec-9aa3-be017d401408,10ffc9f5-9f57-45f9-9e3b-8ec4513f28e2,Patient reports persistent fatigue over 3 weeks.,Dr. Patel,2024-05-13
+da149d1b-19f1-4602-a6a1-64d919917b7b,864346ea-a06c-40f1-a839-3df4e00e4e1d,10ffc9f5-9f57-45f9-9e3b-8ec4513f28e2,Patient experiencing chronic cough and weight loss.,Dr. Adams,2023-07-14
+6ed6919e-9a9d-46a8-80a0-9852a77d1398,90e47508-722b-47d3-8687-47d19151b998,feae491d-1530-4f91-a2ed-4b8df70522f0,Follow-up visit. Symptoms improving.,Dr. Adams,2022-02-09
+d2a7e4eb-b980-4381-8dd9-4cb66357ce3d,4dfe63ca-6d0c-4c6d-aa2c-6e047680bc61,feae491d-1530-4f91-a2ed-4b8df70522f0,Patient experiencing chronic cough and weight loss.,Dr. Patel,2023-12-05
+85bbf90e-4285-4a52-9b77-5419c8669f82,73cd9a5f-8605-4046-a417-e6f4f4e9edad,610d6aca-fad4-4dad-8574-d639cc077a18,Routine annual physical exam.,Dr. Nguyen,2024-03-04
+350dcfae-428f-42df-839c-e424e0cf6c90,9c3bd691-06d4-437c-a632-0b015c67fab7,610d6aca-fad4-4dad-8574-d639cc077a18,Follow-up visit. Symptoms improving.,Dr. Lee,2024-04-21
