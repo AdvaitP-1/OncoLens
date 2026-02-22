@@ -28,6 +28,7 @@ class Settings(BaseModel):
     supabase_url: str = os.getenv("SUPABASE_URL", "")
     supabase_service_role_key: str = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
     supabase_storage_bucket: str = os.getenv("SUPABASE_STORAGE_BUCKET", "case-assets")
+    supabase_jwt_secret: str = os.getenv("SUPABASE_JWT_SECRET", "")
     app_version: str = os.getenv("APP_VERSION", "0.1.0")
     gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
     gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
@@ -51,6 +52,8 @@ class Settings(BaseModel):
             missing.append("SUPABASE_URL")
         if not self.supabase_service_role_key:
             missing.append("SUPABASE_SERVICE_ROLE_KEY")
+        if not self.supabase_jwt_secret:
+            missing.append("SUPABASE_JWT_SECRET")
         if missing:
             raise RuntimeError(f"Missing required environment variables: {', '.join(missing)}")
 

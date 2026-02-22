@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 
+from app.auth import AuthClaims, require_auth
 from app.gemini.client import generate_gemini_reasoning
 from app.models.schemas import HealthResponse, RunRequest, RunResponse, ActionRecommendation
 from app.pipeline.decision import recommend_actions, status_from_score
@@ -23,7 +24,8 @@ from app.utils.json_clean import round_floats
 from app.api import rag_uploads
 
 app = FastAPI(title="OncoLens API", version=settings.app_version)
-app.include_router(rag_uploads.router)
+# Apply auth globally to all RAG upload routes
+app.include_router(rag_uploads.router, dependencies=[Depends(require_auth)])
 
 
 @app.on_event("startup")
@@ -38,7 +40,7 @@ async def health() -> HealthResponse:
 
 
 @app.post("/cases/{case_id}/run", response_model=RunResponse)
-async def run_case(case_id: str, body: RunRequest) -> RunResponse:
+async def run_case(case_id: str, body: RunRequest, claims: AuthClaims) -> RunResponse:
     try:
         async with supabase_client() as sb:
             case = await sb.fetch_case(case_id)
@@ -238,7 +240,7 @@ async def run_case(case_id: str, body: RunRequest) -> RunResponse:
 
 # ── List cases (optionally filtered by created_by) ──────────────────────────
 @app.get("/cases")
-async def list_cases(created_by: str | None = None):
+async def list_cases(claims: AuthClaims, created_by: str | None = None):
     async with supabase_client() as sb:
         url = f"{settings.postgrest_url}/cases?select=*&order=last_updated.desc"
         if created_by:
@@ -249,7 +251,7 @@ async def list_cases(created_by: str | None = None):
 
 # ── Fetch a single case ─────────────────────────────────────────────────────
 @app.get("/cases/{case_id}")
-async def get_case(case_id: str):
+async def get_case(case_id: str, claims: AuthClaims):
     async with supabase_client() as sb:
         url = f"{settings.postgrest_url}/cases?id=eq.{case_id}&select=*"
         res = await sb._client.get(url, headers=sb._headers)
@@ -261,7 +263,7 @@ async def get_case(case_id: str):
 
 # ── Fetch scores/report for a case ─────────────────────────────────────────
 @app.get("/cases/{case_id}/report")
-async def get_case_report(case_id: str):
+async def get_case_report(case_id: str, claims: AuthClaims):
     async with supabase_client() as sb:
         url = f"{settings.postgrest_url}/cases?id=eq.{case_id}&select=scores"
         res = await sb._client.get(url, headers=sb._headers)
@@ -273,13 +275,19 @@ async def get_case_report(case_id: str):
 
 # ── Insert a doctor note ────────────────────────────────────────────────────
 @app.post("/cases/{case_id}/notes")
-async def add_doctor_note(case_id: str, body: dict):
+async def add_doctor_note(case_id: str, body: dict, claims: AuthClaims):
+    # Use the verified token's user ID — never trust author_id from the request body.
+    author_id = claims["sub"]
+    visibility = body.get("visibility", "internal")
+    if visibility not in ("internal", "patient_visible"):
+        raise HTTPException(status_code=422, detail="visibility must be 'internal' or 'patient_visible'.")
     async with supabase_client() as sb:
         url = f"{settings.postgrest_url}/doctor_notes"
         res = await sb._client.post(url, headers=sb._headers, json={
             "case_id": case_id,
-            "author_id": body["author_id"],
+            "author_id": author_id,
             "note": body["note"],
+            "visibility": visibility,
         })
         res.raise_for_status()
         return {"ok": True}
