@@ -20,8 +20,10 @@ from app.pipeline.wearables import (
 from app.settings import settings
 from app.supabase_client import supabase_client
 from app.utils.json_clean import round_floats
+from app.api import rag_uploads
 
 app = FastAPI(title="OncoLens API", version=settings.app_version)
+app.include_router(rag_uploads.router)
 
 
 @app.on_event("startup")

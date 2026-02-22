@@ -3,29 +3,11 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import Topbar from "../../../components/Topbar";
-import CaseStatusBadge from "../../../components/CaseStatusBadge";
 import { useRequireAuth } from "../../../lib/auth";
 import { supabase } from "../../../lib/supabaseClient";
 import { fmtDate } from "../../../lib/format";
 
-// ─── Risk indicator ───────────────────────────────────────────────────────────
-function RiskPill({ value }) {
-  if (typeof value !== "number") return null;
-  const pct   = Math.round(value * 100);
-  const color = value >= 0.7 ? "#ef4444" : value >= 0.4 ? "#f59e0b" : "#10b981";
-  const bg    = value >= 0.7 ? "#fef2f2" : value >= 0.4 ? "#fffbeb" : "#f0fdf4";
-  const label = value >= 0.7 ? "High"    : value >= 0.4 ? "Moderate" : "Low";
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
-      style={{ color, background: bg, border: `1px solid ${color}30` }}>
-      <span className="w-1.5 h-1.5 rounded-full" style={{ background: color }} />
-      {label} · {pct}%
-    </span>
-  );
-}
-
 // ─── Status step bar ──────────────────────────────────────────────────────────
-const STATUS_STEPS = ["running", "ready", "high_priority", "deferred"];
 function CaseProgressBar({ status }) {
   const stepLabels = { running: "In Analysis", ready: "Results Ready", high_priority: "Urgent Review", deferred: "Deferred" };
   const colors     = { running: "#0284c7",    ready: "#10b981",        high_priority: "#ef4444",       deferred: "#64748b" };
@@ -91,12 +73,10 @@ export default function PatientDashboardPage() {
 
   const latestNotes = useMemo(() => notes.slice(0, 6), [notes]);
 
-  const kpis = useMemo(() => {
-    const active   = cases.filter(c => c.status === "running").length;
-    const ready    = cases.filter(c => c.status === "ready").length;
-    const urgent   = cases.filter(c => c.status === "high_priority").length;
-    return { total: cases.length, active, ready, urgent };
-  }, [cases]);
+  const kpis = useMemo(() => ({
+    total: cases.length,
+    ready: cases.filter(c => c.status === "ready").length,
+  }), [cases]);
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
@@ -121,7 +101,7 @@ export default function PatientDashboardPage() {
       {/* Topbar */}
       <Topbar
         title="Patient Portal"
-        subtitle="Your screening triage updates and clinician communication."
+        subtitle="Your screening updates and clinician communication."
         right={
           <Link href="/patient/messages"
             className="relative flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all"
@@ -141,7 +121,6 @@ export default function PatientDashboardPage() {
       {/* Greeting banner */}
       <div className="rounded-xl px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden"
         style={{ background: "linear-gradient(135deg,#0f766e 0%,#0c4a6e 100%)", boxShadow: "0 4px 20px rgba(15,118,110,0.25)" }}>
-        {/* cross pattern overlay */}
         <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.06 }}>
           <svg width="100%" height="100%">
             <defs>
@@ -163,7 +142,6 @@ export default function PatientDashboardPage() {
             <p className="text-teal-200 text-xs mt-0.5">{dateStr}</p>
           </div>
         </div>
-        {/* Research notice inline */}
         <div className="flex items-start gap-2.5 relative z-10 max-w-sm"
           style={{ background: "rgba(255,255,255,0.1)", borderRadius: 10, padding: "10px 14px", border: "1px solid rgba(255,255,255,0.15)" }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fde68a" strokeWidth="2" className="mt-0.5 shrink-0">
@@ -176,20 +154,13 @@ export default function PatientDashboardPage() {
       </div>
 
       {/* KPI row */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-3">
         <StatCard
-          label="Total Cases"
+          label="My Cases"
           value={kpis.total}
           accent="#0f766e"
-          sub="Across all time"
+          sub="Total cases on file"
           icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f766e" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>}
-        />
-        <StatCard
-          label="In Analysis"
-          value={kpis.active}
-          accent="#0284c7"
-          sub="Currently being processed"
-          icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0284c7" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>}
         />
         <StatCard
           label="Results Ready"
@@ -207,21 +178,21 @@ export default function PatientDashboardPage() {
         />
       </div>
 
-      {/* Cases table card */}
+      {/* Cases table */}
       <div className="rounded-xl overflow-hidden"
         style={{ border: "1px solid #e2e8f0", boxShadow: "0 1px 4px rgba(0,0,0,0.05)", background: "white" }}>
         <div className="px-5 py-4 flex items-center justify-between"
           style={{ borderBottom: "1px solid #f1f5f9", background: "linear-gradient(to right,#f8fafc,#f0fdf9)" }}>
           <div>
             <h2 className="text-base font-semibold text-slate-800">Your Cases</h2>
-            <p className="text-xs text-slate-400 mt-0.5">{cases.length} case{cases.length !== 1 ? "s" : ""} assigned to you</p>
+            <p className="text-xs text-slate-400 mt-0.5">{cases.length} case{cases.length !== 1 ? "s" : ""} on file</p>
           </div>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead>
               <tr style={{ background: "#f8fafc" }}>
-                {["Case ID", "Status", "Risk Level", "Summary", "Last Updated", ""].map(h => (
+                {["Status", "Summary", "Last Updated", ""].map(h => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">{h}</th>
                 ))}
               </tr>
@@ -229,7 +200,7 @@ export default function PatientDashboardPage() {
             <tbody>
               {cases.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-14 text-center text-slate-400 text-sm">
+                  <td colSpan={4} className="px-4 py-14 text-center text-slate-400 text-sm">
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5" className="mx-auto mb-2">
                       <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
                     </svg>
@@ -238,22 +209,10 @@ export default function PatientDashboardPage() {
                 </tr>
               ) : cases.map((c, idx) => (
                 <tr key={c.id}
-                  style={{
-                    borderTop: "1px solid #f1f5f9",
-                    background: idx % 2 === 0 ? "white" : "#fafafa",
-                  }}
+                  style={{ borderTop: "1px solid #f1f5f9", background: idx % 2 === 0 ? "white" : "#fafafa" }}
                   className="group hover:bg-teal-50 transition-colors">
                   <td className="px-4 py-3">
-                    <span className="font-mono text-xs font-semibold text-slate-600"
-                      style={{ background: "#f1f5f9", padding: "2px 6px", borderRadius: 4 }}>
-                      {c.id.slice(0, 8)}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
                     <CaseProgressBar status={c.status} />
-                  </td>
-                  <td className="px-4 py-3">
-                    <RiskPill value={c.scores?.p_fused} />
                   </td>
                   <td className="px-4 py-3 text-xs text-slate-500 max-w-xs">
                     <span className="line-clamp-2">{c.patient_summary || "Pending clinician review."}</span>
@@ -278,7 +237,7 @@ export default function PatientDashboardPage() {
         </div>
       </div>
 
-      {/* Notes + Wearables row */}
+      {/* Notes + Wearables */}
       <div className="grid gap-4 lg:grid-cols-2">
 
         {/* Patient-visible notes */}
@@ -289,7 +248,7 @@ export default function PatientDashboardPage() {
             <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "#0f766e15" }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f766e" strokeWidth="2">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
               </svg>
             </div>
             <div>
@@ -359,7 +318,6 @@ export default function PatientDashboardPage() {
         </div>
 
       </div>
-
     </div>
   );
 }
