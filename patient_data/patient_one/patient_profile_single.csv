@@ -1,0 +1,2 @@
+patient_id,first_name,last_name,dob,sex,ethnicity,height_cm,weight_kg,smoking_status,pack_years,alcohol_use,primary_diagnosis,insurance_provider
+2d98f50f-c572-49c1-956d-146de2c3b4f6,Robert,Miller,1968-04-12,Male,White,178,82,Former,25,Moderate,Suspected Non-Small Cell Lung Cancer,BCBS

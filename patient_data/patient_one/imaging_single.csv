@@ -1,0 +1,3 @@
+patient_id,date,modality,body_part,finding_summary,radiologist_impression
+2d98f50f-c572-49c1-956d-146de2c3b4f6,2024-01-06,CT,Chest,Right upper lobe mass measuring 2.1 cm.,Suspicious for malignancy.
+2d98f50f-c572-49c1-956d-146de2c3b4f6,2024-02-05,CT,Chest,Mass increased to 2.8 cm with mediastinal lymphadenopathy.,Disease progression.
