@@ -11,7 +11,8 @@ from dotenv import load_dotenv
 from supabase import create_client
 
 # Load environment variables from .env file in backend directory
-env_path = Path(__file__).resolve().parents[3] / ".env"
+# Calculate path: api -> app -> backend (2 levels up)
+env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
 # Create FastAPI router for document upload endpoints

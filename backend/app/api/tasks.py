@@ -9,7 +9,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Load environment variables from .env file in backend directory
-env_path = Path(__file__).resolve().parents[3] / ".env"
+# Calculate path: api -> app -> backend (2 levels up)
+env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
 # Initialize Celery worker with Redis as message broker
@@ -20,11 +21,17 @@ celery = Celery(__name__, broker=os.environ["REDIS_URL"])
 supabase = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_ROLE_KEY"])
 
 # ---- Embedding provider configuration (Google Gemini) ----
-import google.generativeai as genai
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-
-# Gemini's text embedding model - generates 768-dimensional vectors
-EMBED_MODEL = "models/text-embedding-004"
+try:
+    from google import genai
+    from google.genai import types
+    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+    USE_NEW_API = True
+    EMBED_MODEL = "text-embedding-004"  # New API uses model name without prefix
+except ImportError:
+    import google.generativeai as genai
+    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+    USE_NEW_API = False
+    EMBED_MODEL = "models/text-embedding-004"  # Old API uses full path
 
 
 def chunk_text(text: str, max_chars=1200, overlap=150):
@@ -67,13 +74,21 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
     embeddings = []
     # Process each text individually (could be batched for efficiency)
     for text in texts:
-        # Generate embedding with task_type optimized for document storage
-        result = genai.embed_content(
-            model=EMBED_MODEL,
-            content=text,
-            task_type="retrieval_document"  # Optimizes for document indexing
-        )
-        embeddings.append(result['embedding'])
+        if USE_NEW_API:
+            # New google.genai API
+            response = client.models.embed_content(
+                model=EMBED_MODEL,
+                contents=text  # Note: 'contents' not 'content'
+            )
+            embeddings.append(list(response.embeddings[0].values))
+        else:
+            # Old google.generativeai API
+            result = genai.embed_content(
+                model=EMBED_MODEL,
+                content=text,
+                task_type="retrieval_document"  # Optimizes for document indexing
+            )
+            embeddings.append(result['embedding'])
     return embeddings
 
 

@@ -10,15 +10,22 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Load environment variables from .env file in backend directory
-env_path = Path(__file__).resolve().parents[3] / ".env"
+# Calculate path: api -> app -> backend (2 levels up)
+env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
 # Import and configure Google Gemini API for generating embeddings
-import google.generativeai as genai
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-
-# Gemini embedding model - generates 768-dimensional vectors for semantic search
-EMBED_MODEL = "models/text-embedding-004"
+try:
+    from google import genai
+    from google.genai import types
+    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+    USE_NEW_API = True
+    EMBED_MODEL = "text-embedding-004"  # New API uses model name without prefix
+except ImportError:
+    import google.generativeai as genai
+    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+    USE_NEW_API = False
+    EMBED_MODEL = "models/text-embedding-004"  # Old API uses full path
 
 # Initialize Supabase client for database operations
 supabase = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_ROLE_KEY"])
@@ -62,12 +69,21 @@ def retrieve(q: RAGQuery):
     """
     # Generate embedding vector for the query using Gemini API
     # task_type="retrieval_query" optimizes the embedding for search queries
-    result = genai.embed_content(
-        model=EMBED_MODEL,
-        content=q.question,
-        task_type="retrieval_query"
-    )
-    qvec = result['embedding']
+    if USE_NEW_API:
+        # New google.genai API
+        response = client.models.embed_content(
+            model=EMBED_MODEL,
+            contents=q.question  # Note: 'contents' not 'content'
+        )
+        qvec = list(response.embeddings[0].values)
+    else:
+        # Old google.generativeai API
+        result = genai.embed_content(
+            model=EMBED_MODEL,
+            content=q.question,
+            task_type="retrieval_query"
+        )
+        qvec = result['embedding']
     
     # Call Supabase RPC function to perform vector similarity search
     # This uses pgvector extension to find nearest neighbors in embedding space
