@@ -7,7 +7,7 @@ import Topbar from "../../../../components/Topbar";
 import JsonDrawer from "../../../../components/JsonDrawer";
 import { useRequireAuth } from "../../../../lib/auth";
 import { supabase } from "../../../../lib/supabaseClient";
-import { fmtNumber, fmtDate, titleCase } from "../../../../lib/format";
+import { fmtNumber, fmtDate, titleCase, normalizeCase } from "../../../../lib/format";
 
 // ─── Score gauge card ─────────────────────────────────────────────────────────
 function ScoreCard({ label, p, ci, accent }) {
@@ -79,6 +79,25 @@ function AbstainBanner({ reasons }) {
   );
 }
 
+// ─── Missing assets banner ────────────────────────────────────────────────────
+function MissingAssetsBanner() {
+  return (
+    <div className="rounded-xl px-5 py-4 flex items-start gap-3"
+      style={{ background: "#fef2f2", border: "1px solid #fecaca" }}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" className="mt-0.5 shrink-0">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <div>
+        <p className="text-sm font-semibold text-red-800">Missing required assets: wearables_csv and image</p>
+        <p className="text-xs text-red-700 mt-0.5">
+          Run analysis requires both wearables CSV and imaging. Create a new case with both assets via the New Case page.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Recommendations table ────────────────────────────────────────────────────
 function RecommendationsTable({ rows }) {
   if (!rows?.length) return (
@@ -89,7 +108,7 @@ function RecommendationsTable({ rows }) {
       <p className="text-xs">No recommendations yet</p>
     </div>
   );
-  const best = rows.reduce((a, b) => (b.expected_utility > a.expected_utility ? b : a), rows[0]);
+  const best = rows.reduce((a, b) => ((b.expected_utility ?? 0) > (a.expected_utility ?? 0) ? b : a), rows[0]);
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full text-sm">
@@ -304,17 +323,18 @@ function NoteComposer({ onSubmit }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ClinicianCaseDetailPage() {
   const { id } = useParams();
-  const { loading, user } = useRequireAuth("clinician");
+  const { loading, user } = useRequireAuth();
   const [caseRow,      setCaseRow]      = useState(null);
   const [notes,        setNotes]        = useState([]);
   const [lambdaValue,  setLambdaValue]  = useState(0.6);
   const [conservative, setConservative] = useState(true);
   const [status,       setStatus]       = useState("");
   const [running,      setRunning]      = useState(false);
+  const [runError,     setRunError]     = useState(null);
 
   async function load() {
     const { data: c } = await supabase.from("cases").select("*").eq("id", id).single();
-    setCaseRow(c || null);
+    setCaseRow(normalizeCase(c) || null);
     const { data: n } = await supabase
       .from("doctor_notes").select("*").eq("case_id", id)
       .order("created_at", { ascending: false });
@@ -327,16 +347,31 @@ export default function ClinicianCaseDetailPage() {
     const { data: sessionData } = await supabase.auth.getSession();
     const token = sessionData.session?.access_token;
     setRunning(true);
-    setStatus("Running analysis...");
-    const res = await fetch("/api/cases/run", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ case_id: id, lambda: lambdaValue, conservative })
-    });
-    const json = await res.json();
-    setRunning(false);
-    setStatus(res.ok ? "Analysis complete." : json.error || "Failed to run.");
-    if (res.ok) await load();
+    setStatus("Running pipeline…");
+    setRunError(null);
+    try {
+      const res = await fetch("/api/cases/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ case_id: id, lambda: lambdaValue, conservative })
+      });
+      const json = await res.json();
+      const errMsg = json.detail || json.error || "Failed to run.";
+      const isMissingAssets = typeof errMsg === "string" && (
+        errMsg.includes("Missing required assets") ||
+        (errMsg.includes("wearables_csv") && errMsg.includes("image"))
+      );
+      if (res.ok) {
+        setStatus("Analysis complete.");
+        setRunError(null);
+      } else {
+        setStatus(errMsg);
+        setRunError(isMissingAssets ? "missing_assets" : errMsg);
+      }
+    } finally {
+      setRunning(false);
+      await load();
+    }
   }
 
   async function createNote({ note, visibility }) {
@@ -374,7 +409,12 @@ export default function ClinicianCaseDetailPage() {
         title={`Case ${id.slice(0, 8)}`}
         subtitle="Screening score review — decision-support only, requires clinician review."
         right={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {caseRow.last_updated && (
+              <span className="text-xs text-slate-500">
+                Last updated: {fmtDate(caseRow.last_updated)}
+              </span>
+            )}
             <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold"
               style={{ background: `${sColor}12`, color: sColor, border: `1px solid ${sColor}25` }}>
               <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: sColor }}/>
@@ -405,6 +445,9 @@ export default function ClinicianCaseDetailPage() {
         }
       />
 
+      {/* Missing assets banner */}
+      {runError === "missing_assets" && <MissingAssetsBanner />}
+
       {/* Abstain banner */}
       {caseRow.abstain && <AbstainBanner reasons={caseRow.abstain_reasons} />}
 
@@ -414,6 +457,49 @@ export default function ClinicianCaseDetailPage() {
         <ScoreCard label="Health Score (p_health)" p={scores.p_health} ci={scores.ci_health} />
         <ScoreCard label="Fused Score (p_fused)"   p={scores.p_fused}  ci={scores.ci_fused}  />
       </div>
+
+      {/* LLM Cancer Risk Assessment */}
+      {caseRow.gemini_reasoning?.cancer_risk_tier && caseRow.gemini_reasoning.cancer_risk_tier !== "unknown" || caseRow.gemini_reasoning?.cancer_likelihood_rationale ? (
+        <div className="rounded-xl overflow-hidden"
+          style={{ border: "1px solid #e2e8f0", boxShadow: "0 1px 4px rgba(0,0,0,0.05)", background: "white" }}>
+          <div className="px-5 py-4 flex items-center gap-3"
+            style={{ borderBottom: "1px solid #f1f5f9", background: "linear-gradient(to right,#f8fafc,#fef2f2)" }}>
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "#fef2f215" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <h2 className="text-sm font-semibold text-slate-800">LLM Cancer Risk Assessment</h2>
+          </div>
+          <div className="p-5 space-y-4">
+            {caseRow.gemini_reasoning?.cancer_risk_tier && caseRow.gemini_reasoning.cancer_risk_tier !== "unknown" && (
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Risk Tier</p>
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold"
+                  style={{
+                    background: caseRow.gemini_reasoning.cancer_risk_tier === "low" ? "rgba(16,185,129,0.12)" : caseRow.gemini_reasoning.cancer_risk_tier === "elevated" ? "rgba(245,158,11,0.12)" : "rgba(239,68,68,0.12)",
+                    color: caseRow.gemini_reasoning.cancer_risk_tier === "low" ? "#059669" : caseRow.gemini_reasoning.cancer_risk_tier === "elevated" ? "#d97706" : "#dc2626",
+                    border: `1px solid ${caseRow.gemini_reasoning.cancer_risk_tier === "low" ? "rgba(16,185,129,0.25)" : caseRow.gemini_reasoning.cancer_risk_tier === "elevated" ? "rgba(245,158,11,0.25)" : "rgba(239,68,68,0.25)"}`,
+                  }}
+                >
+                  {titleCase(caseRow.gemini_reasoning.cancer_risk_tier)}
+                </span>
+              </div>
+            )}
+            {caseRow.gemini_reasoning?.cancer_likelihood_rationale && (
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Likelihood Rationale</p>
+                <p className="text-sm text-slate-700 leading-relaxed">{caseRow.gemini_reasoning.cancer_likelihood_rationale}</p>
+              </div>
+            )}
+            <div className="rounded-lg px-3 py-2 text-xs text-amber-800"
+              style={{ background: "#fef3c7", border: "1px solid #fcd34d" }}>
+              Screening triage support only. Not a diagnosis. Requires clinician review.
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {/* Decision engine controls */}
       <div className="rounded-xl overflow-hidden"
@@ -473,7 +559,7 @@ export default function ClinicianCaseDetailPage() {
                   <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
                 </svg>
               )}
-              {running ? "Running..." : "Re-run Analysis"}
+              {running ? "Running pipeline…" : "Re-run Analysis"}
             </button>
             {status && (
               <span className="flex items-center gap-1.5 text-xs font-medium"

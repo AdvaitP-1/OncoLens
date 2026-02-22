@@ -52,8 +52,7 @@ class Settings(BaseModel):
             missing.append("SUPABASE_URL")
         if not self.supabase_service_role_key:
             missing.append("SUPABASE_SERVICE_ROLE_KEY")
-        if not self.supabase_jwt_secret:
-            missing.append("SUPABASE_JWT_SECRET")
+        # SUPABASE_JWT_SECRET optional for hackathon (auth disabled)
         if missing:
             raise RuntimeError(f"Missing required environment variables: {', '.join(missing)}")
 

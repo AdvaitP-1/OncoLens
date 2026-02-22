@@ -81,24 +81,22 @@ npm install
 npm run dev
 ```
 
-## 4) Create users + profile roles
+## 4) Enable anonymous auth (hackathon)
 
-1. Open frontend at `http://localhost:3000`.
-2. Use `/signup` to create:
-   - one clinician account
-   - one patient account
-3. Signup automatically inserts a `profiles` row with `full_name` and `role`.
+In Supabase Dashboard: **Authentication > Providers > Anonymous sign-in** — enable it.  
+No login/signup UI; users land directly on the dashboard.
 
 ## 5) Create case and run analysis
 
-1. Login as clinician.
-2. Go to `/clinician/new-case`.
-3. Upload:
-   - wearables CSV
-   - image PNG/JPG
-4. Assign patient and click **Create case**.
-5. Click **Run analysis** (calls backend).
-6. Review outputs in `/clinician/cases/{id}` and `/clinician/imaging/{id}`.
+1. Open `http://localhost:3000` and click **Go to Dashboard**.
+2. Go to **New Case**.
+3. Upload **both** (required for analysis):
+   - wearables CSV (one or more)
+   - image PNG or JPG (one per case)
+4. Click **Create case**, then **Run analysis**.
+5. Review outputs in case detail and imaging pages.
+
+> **Note:** Analysis requires both wearables CSV and imaging. The Run analysis button is enabled only after a case is created with both assets.
 
 ## 6) Test backend with curl
 

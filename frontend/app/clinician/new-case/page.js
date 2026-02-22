@@ -1,39 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Topbar from "../../../components/Topbar";
 import UploadDropzone from "../../../components/UploadDropzone";
 import { supabase } from "../../../lib/supabaseClient";
 import { useRequireAuth } from "../../../lib/auth";
 
-
 export default function NewCasePage() {
-  const { loading, user } = useRequireAuth("clinician");
+  const { loading, user } = useRequireAuth();
   const [csvFiles, setCsvFiles] = useState([]);
   const [imageFile, setImageFile] = useState(null);
-  const [patients, setPatients] = useState([]);
-  const [patientId, setPatientId] = useState("");
   const [createdCaseId, setCreatedCaseId] = useState("");
   const [statusText, setStatusText] = useState("");
 
-  useEffect(() => {
-    async function loadPatients() {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const token = sessionData.session?.access_token;
-      const res = await fetch("/api/patients", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      const list = Array.isArray(data) ? data : [];
-      setPatients(list);
-      if (list[0]?.id) setPatientId(list[0].id);
-    }
-    loadPatients();
-  }, []);
+  const hasCsv = csvFiles.length > 0;
+  const hasImage = !!imageFile;
+  const canCreate = hasCsv && hasImage && user;
+  const canRunAnalysis = !!createdCaseId;
 
   async function createCase() {
-    if (!user || !patientId || csvFiles.length === 0) {
-      setStatusText("Please select a patient and upload at least one CSV file.");
+    if (!user || !canCreate) {
+      setStatusText("Please upload CSVs and an image.");
       return;
     }
     if (!imageFile) {
@@ -44,6 +31,7 @@ export default function NewCasePage() {
     const { data: sessionData } = await supabase.auth.getSession();
     const token = sessionData.session?.access_token;
     const caseId = crypto.randomUUID();
+    const userId = user.id;
 
     const csvPaths = [];
     for (const file of csvFiles) {
@@ -54,7 +42,7 @@ export default function NewCasePage() {
       fd.append("path", storagePath);
       const uploadRes = await fetch("/api/storage-upload", {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: fd,
       });
       const uploadJson = await uploadRes.json();
@@ -65,14 +53,16 @@ export default function NewCasePage() {
       csvPaths.push(storagePath);
     }
 
-    const safeName = imageFile.name.toLowerCase().replace(/[^a-z0-9._-]/g, "_");
-    const imageStoragePath = `cases/${caseId}/image/${safeName}`;
+    const ext = imageFile.name.toLowerCase().endsWith(".jpg") || imageFile.name.toLowerCase().endsWith(".jpeg")
+      ? "jpg"
+      : "png";
+    const imagePath = `cases/${caseId}/image.${ext}`;
     const imageFd = new FormData();
     imageFd.append("file", imageFile);
-    imageFd.append("path", imageStoragePath);
+    imageFd.append("path", imagePath);
     const imageUploadRes = await fetch("/api/storage-upload", {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: imageFd,
     });
     const imageUploadJson = await imageUploadRes.json();
@@ -85,14 +75,15 @@ export default function NewCasePage() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: JSON.stringify({
         id: caseId,
-        patient_id: patientId,
+        created_by: userId,
+        patient_id: userId,
         wearables_paths: csvPaths,
-        image_path: imageStoragePath
-      })
+        image_path: imagePath,
+      }),
     });
     const json = await res.json();
     if (!res.ok) {
@@ -104,9 +95,9 @@ export default function NewCasePage() {
     for (const file of csvFiles) {
       const formData = new FormData();
       formData.append("file", file);
-      await fetch(`/api/rag-upload/${patientId}`, {
+      await fetch(`/api/rag-upload/${userId}`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
       });
     }
@@ -115,16 +106,11 @@ export default function NewCasePage() {
 
   async function runAnalysis() {
     if (!createdCaseId) return;
-    const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData.session?.access_token;
     setStatusText("Running analysis...");
     const res = await fetch("/api/cases/run", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ case_id: createdCaseId, lambda: 0.6, conservative: true })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ case_id: createdCaseId, lambda: 0.6, conservative: true }),
     });
     const json = await res.json();
     if (!res.ok) {
@@ -137,7 +123,7 @@ export default function NewCasePage() {
   if (loading) return null;
   return (
     <div>
-      <Topbar title="Create New Case" subtitle="Upload patient data CSVs, assign a patient, and run the triage pipeline." />
+      <Topbar title="Create New Case" subtitle="Upload wearables CSVs and an image, then run the triage pipeline." />
       <UploadDropzone
         label="Patient Data CSVs (multiple)"
         accept=".csv,text/csv"
@@ -150,26 +136,31 @@ export default function NewCasePage() {
       </p>
       <div className="mt-4">
         <UploadDropzone
-          label="Diagnostic Image (PNG or JPG)"
-          accept=".png,.jpg,.jpeg,image/png,image/jpeg"
-          onChange={setImageFile}
+          label="Imaging (PNG or JPG, single file)"
+          accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+          onChange={(f) => setImageFile(f || null)}
+          multiple={false}
         />
+        <p className="mt-2 text-xs text-slate-500">
+          Analysis requires both wearables CSV and imaging. Upload one image per case.
+        </p>
       </div>
       <div className="card mt-4 p-4">
-        <p className="mb-2 text-sm font-semibold">Assign patient</p>
-        <select className="input max-w-lg" value={patientId} onChange={(e) => setPatientId(e.target.value)}>
-          {patients.length === 0 && <option value="">No patients found</option>}
-          {patients.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.full_name || p.id} ({p.id.slice(0, 8)})
-            </option>
-          ))}
-        </select>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 text-sm">
+            <span className={hasCsv ? "text-emerald-600" : "text-slate-400"}>
+              {hasCsv ? "✓" : "○"} CSV
+            </span>
+            <span className={hasImage ? "text-emerald-600" : "text-slate-400"}>
+              {hasImage ? "✓" : "○"} Image
+            </span>
+          </div>
+        </div>
         <div className="mt-4 flex gap-2">
-          <button className="btn-primary" onClick={createCase}>
+          <button className="btn-primary" onClick={createCase} disabled={!canCreate}>
             Create case
           </button>
-          <button className="btn-secondary" onClick={runAnalysis} disabled={!createdCaseId}>
+          <button className="btn-secondary" onClick={runAnalysis} disabled={!canRunAnalysis}>
             Run analysis
           </button>
         </div>

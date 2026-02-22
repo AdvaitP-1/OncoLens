@@ -28,6 +28,7 @@ Edit `.env`:
 ```env
 SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_JWT_SECRET=   # From Supabase Dashboard → Project Settings → API → JWT Secret
 SUPABASE_STORAGE_BUCKET=case-assets
 APP_VERSION=0.1.0
 GEMINI_API_KEY=

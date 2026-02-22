@@ -1,45 +1,51 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "./supabaseClient";
 
-export function useRequireAuth(requiredRole) {
-  const router = useRouter();
+/**
+ * Hackathon mode: anonymous auth, no login UI.
+ * Ensures session exists (signs in anonymously if needed) and profile is created.
+ * Returns { loading, user, profile } - no redirect to login.
+ */
+export function useRequireAuth() {
   const [state, setState] = useState({ loading: true, user: null, profile: null });
 
   useEffect(() => {
-    async function load() {
-      const { data: userData, error: userError } = await supabase.auth.getUser();
+    async function ensureSession() {
+      let { data: userData } = await supabase.auth.getUser();
       if (!userData?.user) {
-        console.warn("[auth] getUser failed:", userError);
-        router.replace("/login");
-        return;
+        const { data: signInData, error } = await supabase.auth.signInAnonymously();
+        if (error) {
+          console.warn("[auth] Anonymous sign-in failed:", error);
+          setState({ loading: false, user: null, profile: null });
+          return;
+        }
+        userData = signInData;
       }
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userData.user.id)
-        .single();
+      const userId = userData.user.id;
 
+      let { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).single();
       if (!profile) {
-        console.warn("[auth] profile not found for user:", userData.user.id, profileError);
-        router.replace("/login");
-        return;
-      }
-      if (requiredRole && profile.role !== requiredRole) {
-        router.replace(profile.role === "clinician" ? "/clinician/dashboard" : "/patient/dashboard");
-        return;
+        const { error: insertErr } = await supabase.from("profiles").insert({
+          id: userId,
+          full_name: "Demo User",
+          role: "clinician",
+        });
+        if (insertErr) {
+          console.warn("[auth] Profile insert failed:", insertErr);
+        }
+        profile = { id: userId, full_name: "Demo User", role: "clinician" };
       }
       setState({ loading: false, user: userData.user, profile });
     }
-    load();
-  }, [requiredRole, router]);
+    ensureSession();
+  }, []);
 
   return state;
 }
 
 export async function logout() {
   await supabase.auth.signOut();
-  window.location.href = "/login";
+  window.location.href = "/";
 }

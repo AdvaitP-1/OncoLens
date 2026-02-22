@@ -144,9 +144,8 @@ const FILTERS = [
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ClinicianDashboardPage() {
-  const { loading, user } = useRequireAuth("clinician");
+  const { loading, user } = useRequireAuth();
   const [cases,   setCases]   = useState([]);
-  const [unread,  setUnread]  = useState(0);
   const [filter,  setFilter]  = useState("all");
   const [search,  setSearch]  = useState("");
   const [sortCol, setSortCol] = useState("created_at");
@@ -159,9 +158,6 @@ export default function ClinicianDashboardPage() {
         .from("cases").select("*").eq("created_by", user.id)
         .order("created_at", { ascending: false });
       setCases(caseRows || []);
-      const { data: msgRows } = await supabase
-        .from("messages").select("id").eq("recipient_id", user.id).is("read_at", null);
-      setUnread((msgRows || []).length);
     }
     load();
   }, [user]);
@@ -249,18 +245,6 @@ export default function ClinicianDashboardPage() {
         subtitle="Screening triage overview and communication queue."
         right={
           <div className="flex items-center gap-2">
-            <Link href="/clinician/messages"
-              className="relative flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all"
-              style={{ background: "rgba(15,118,110,0.08)", color: "#0f766e", border: "1px solid rgba(15,118,110,0.2)" }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
-              Messages
-              {unread > 0 && (
-                <span className="flex items-center justify-center w-5 h-5 rounded-full text-white text-xs font-bold"
-                  style={{ background: "#ef4444" }}>{unread}</span>
-              )}
-            </Link>
             <Link href="/clinician/new-case"
               className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-white transition-all"
               style={{ background: "linear-gradient(135deg,#0f766e,#0c4a6e)", boxShadow: "0 2px 8px rgba(15,118,110,0.35)" }}>

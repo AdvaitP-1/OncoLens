@@ -1,27 +1,17 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { createSupabaseServerClient } from "../../../../lib/supabaseServer";
-
-function getToken(request) {
-  const auth = request.headers.get("authorization") || "";
-  return auth.startsWith("Bearer ") ? auth.slice(7) : "";
-}
 
 export async function POST(request) {
   try {
-    // Verify the requester is an authenticated user
-    const token = getToken(request);
-    const supabase = createSupabaseServerClient(token);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-
     const body = await request.json();
-    const { id, patient_id, wearables_paths, image_path } = body;
-    if (!id || !patient_id || !Array.isArray(wearables_paths) || wearables_paths.length === 0) {
-      return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+    const { id, created_by, patient_id, wearables_paths, image_path } = body;
+    if (!id || !created_by || !patient_id || !Array.isArray(wearables_paths) || wearables_paths.length === 0) {
+      return NextResponse.json({ error: "Missing required fields: id, created_by, patient_id, wearables_paths." }, { status: 400 });
+    }
+    if (!image_path || typeof image_path !== "string") {
+      return NextResponse.json({ error: "image_path is required. Analysis needs both wearables CSV and image." }, { status: 400 });
     }
 
-    // Use service role key to bypass RLS for writes
     const admin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -29,7 +19,7 @@ export async function POST(request) {
 
     const { error: caseError } = await admin.from("cases").insert({
       id,
-      created_by: user.id,
+      created_by,
       patient_id,
       status: "new"
     });

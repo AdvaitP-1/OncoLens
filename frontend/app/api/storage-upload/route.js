@@ -1,19 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { createSupabaseServerClient } from "../../../lib/supabaseServer";
-
-function getToken(request) {
-  const auth = request.headers.get("authorization") || "";
-  return auth.startsWith("Bearer ") ? auth.slice(7) : "";
-}
 
 export async function POST(request) {
   try {
-    const token = getToken(request);
-    const supabase = createSupabaseServerClient(token);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-
     const formData = await request.formData();
     const file = formData.get("file");
     const storagePath = formData.get("path");

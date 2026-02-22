@@ -10,3 +10,5 @@ class GeminiReasoning(BaseModel):
     limitations: list[str]
     safety_disclaimer: str
     confidence_statement: str
+    cancer_risk_tier: str = "unknown"
+    cancer_likelihood_rationale: str = ""

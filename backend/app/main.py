@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime, timezone
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException
 
-from app.auth import AuthClaims, require_auth
+try:
+    from app.api.rag_query import RAGQuery, retrieve
+except ImportError:
+    RAGQuery = None
+    retrieve = None
 from app.gemini.client import generate_gemini_reasoning
 from app.models.schemas import HealthResponse, RunRequest, RunResponse, ActionRecommendation
 from app.pipeline.decision import recommend_actions, status_from_score
@@ -24,8 +29,7 @@ from app.utils.json_clean import round_floats
 from app.api import rag_uploads
 
 app = FastAPI(title="OncoLens API", version=settings.app_version)
-# Apply auth globally to all RAG upload routes
-app.include_router(rag_uploads.router, dependencies=[Depends(require_auth)])
+app.include_router(rag_uploads.router)
 
 
 @app.on_event("startup")
@@ -40,7 +44,7 @@ async def health() -> HealthResponse:
 
 
 @app.post("/cases/{case_id}/run", response_model=RunResponse)
-async def run_case(case_id: str, body: RunRequest, claims: AuthClaims) -> RunResponse:
+async def run_case(case_id: str, body: RunRequest) -> RunResponse:
     try:
         async with supabase_client() as sb:
             case = await sb.fetch_case(case_id)
@@ -124,13 +128,42 @@ async def run_case(case_id: str, body: RunRequest, claims: AuthClaims) -> RunRes
             if storage_path_lower.endswith(".jpg") or storage_path_lower.endswith(".jpeg"):
                 image_mime = "image/jpeg"
 
+            rag_chunks: list[dict] = []
+            patient_id = str(case.get("patient_id", ""))
+            if patient_id and retrieve is not None and RAGQuery is not None:
+                try:
+                    rag_result = await asyncio.to_thread(
+                        retrieve,
+                        RAGQuery(
+                            patient_id=patient_id,
+                            question="Patient clinical notes, lab results, diagnoses, imaging findings, medications, and medical history relevant to oncology screening",
+                            k=15,
+                        ),
+                    )
+                    matches = rag_result.get("matches") or []
+                    for m in matches[:15]:
+                        content = m.get("content") or m.get("text") or str(m)
+                        rag_chunks.append({
+                            "content": (content[:200] + "…") if len(content) > 200 else content,
+                            "score": m.get("similarity") or m.get("score"),
+                        })
+                except Exception:
+                    rag_chunks = []
+
+            days_covered = data_quality.get("days_covered", 0)
+            data_span_note = None
+            if days_covered < 30:
+                data_span_note = f"Wearables cover {days_covered} days; 30 days preferred for cancer risk assessment."
+
             case_context = {
                 "case_id": case_id,
                 "data_quality": {
-                    "days_covered": data_quality.get("days_covered", 0),
+                    "days_covered": days_covered,
                     "gaps_count": data_quality.get("gaps_count", 0),
                     "missing_ratio": data_quality.get("missing_ratio", 1.0),
                 },
+                "data_span_note": data_span_note,
+                "rag_chunks": rag_chunks,
                 "scores": {
                     "p_health": health["p_health"],
                     "ci_health": health["ci_health"],
@@ -240,7 +273,7 @@ async def run_case(case_id: str, body: RunRequest, claims: AuthClaims) -> RunRes
 
 # ── List cases (optionally filtered by created_by) ──────────────────────────
 @app.get("/cases")
-async def list_cases(claims: AuthClaims, created_by: str | None = None):
+async def list_cases(created_by: str | None = None):
     async with supabase_client() as sb:
         url = f"{settings.postgrest_url}/cases?select=*&order=last_updated.desc"
         if created_by:
@@ -251,7 +284,7 @@ async def list_cases(claims: AuthClaims, created_by: str | None = None):
 
 # ── Fetch a single case ─────────────────────────────────────────────────────
 @app.get("/cases/{case_id}")
-async def get_case(case_id: str, claims: AuthClaims):
+async def get_case(case_id: str):
     async with supabase_client() as sb:
         url = f"{settings.postgrest_url}/cases?id=eq.{case_id}&select=*"
         res = await sb._client.get(url, headers=sb._headers)
@@ -263,7 +296,7 @@ async def get_case(case_id: str, claims: AuthClaims):
 
 # ── Fetch scores/report for a case ─────────────────────────────────────────
 @app.get("/cases/{case_id}/report")
-async def get_case_report(case_id: str, claims: AuthClaims):
+async def get_case_report(case_id: str):
     async with supabase_client() as sb:
         url = f"{settings.postgrest_url}/cases?id=eq.{case_id}&select=scores"
         res = await sb._client.get(url, headers=sb._headers)
@@ -275,9 +308,10 @@ async def get_case_report(case_id: str, claims: AuthClaims):
 
 # ── Insert a doctor note ────────────────────────────────────────────────────
 @app.post("/cases/{case_id}/notes")
-async def add_doctor_note(case_id: str, body: dict, claims: AuthClaims):
-    # Use the verified token's user ID — never trust author_id from the request body.
-    author_id = claims["sub"]
+async def add_doctor_note(case_id: str, body: dict):
+    author_id = body.get("author_id")
+    if not author_id:
+        raise HTTPException(status_code=400, detail="author_id is required.")
     visibility = body.get("visibility", "internal")
     if visibility not in ("internal", "patient_visible"):
         raise HTTPException(status_code=422, detail="visibility must be 'internal' or 'patient_visible'.")

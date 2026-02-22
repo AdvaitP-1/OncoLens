@@ -48,8 +48,7 @@ export default function HomePage() {
           <span className="font-bold text-slate-900 tracking-tight">OncoLens</span>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/login" className="btn-secondary text-sm px-4 py-2">Log in</Link>
-          <Link href="/signup" className="btn-primary text-sm px-4 py-2">Sign up</Link>
+          <Link href="/clinician/dashboard" className="btn-primary text-sm px-4 py-2">Go to Dashboard</Link>
         </div>
       </nav>
 
@@ -64,8 +63,7 @@ export default function HomePage() {
           giving clinicians the context they need to review and prioritise cases efficiently.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <Link href="/login" className="btn-primary px-6 py-2.5 text-sm">Log in to dashboard</Link>
-          <Link href="/signup" className="btn-secondary px-6 py-2.5 text-sm">Create an account</Link>
+          <Link href="/clinician/dashboard" className="btn-primary px-6 py-2.5 text-sm">Go to Dashboard</Link>
         </div>
       </section>
 

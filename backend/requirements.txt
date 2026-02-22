@@ -7,5 +7,5 @@ numpy
 pandas
 httpx
 python-dotenv
-python-jose[cryptography]
 supabase
+python-jose[cryptography]
