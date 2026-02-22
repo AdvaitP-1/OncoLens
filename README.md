@@ -15,26 +15,46 @@ Clinical decision support demo for skin lesion analysis. Full-stack app with wea
 - Node.js 18+
 - Kaggle account (for HAM10000 dataset)
 
+## Quick Start (all steps)
+
+1. **Clone the repo** and install dependencies
+2. **Set up Kaggle** (see Step 1 below)
+3. **Build the HAM index** (see Step 2 below)
+4. **Set environment variables** (see Step 3 below)
+5. **Run backend** (see Step 4 below)
+6. **Run frontend** (see Step 5 below)
+
+---
+
 ## 1. KaggleHub Setup
 
-The HAM10000 dataset is downloaded via [kagglehub](https://github.com/Kaggle/kagglehub).
+The HAM10000 dataset is downloaded via [kagglehub](https://github.com/Kaggle/kagglehub). Each developer needs their own Kaggle account and API token.
 
-### Authentication
+### Steps
 
-1. Install kagglehub: `pip install kagglehub`
-2. Create a Kaggle API token:
-   - Go to [Kaggle Account](https://www.kaggle.com/settings) → API → Create New Token
-   - This downloads `kaggle.json`
-3. Place `kaggle.json` in `~/.kaggle/` (or set `KAGGLE_USERNAME` and `KAGGLE_KEY` env vars)
-4. **Do not commit** `kaggle.json` or any tokens to the repo
+1. **Create a Kaggle account** (free) at [kaggle.com](https://www.kaggle.com)
+2. **Create an API token**:
+   - Go to [Kaggle Account → API](https://www.kaggle.com/settings)
+   - Click **Create New Token** — this downloads `kaggle.json`
+3. **Place the token**:
+   - Put `kaggle.json` in `~/.kaggle/` (e.g. `~/.kaggle/kaggle.json`)
+   - Or set env vars: `KAGGLE_USERNAME` and `KAGGLE_KEY`
+4. **Install kagglehub**: `pip install kagglehub`
+5. **Do not commit** `kaggle.json` — it is in `.gitignore`
 
-### Alternative: `kagglehub.login()`
+### Alternative: interactive login
 
-Run `python -c "import kagglehub; kagglehub.login()"` and follow the prompts.
+```bash
+python -c "import kagglehub; kagglehub.login()"
+```
+
+Follow the prompts to authenticate.
+
+---
 
 ## 2. Build HAM Index
 
-Before running the backend, build the image index:
+Before running the backend, build the image index (this downloads the dataset via Kaggle):
 
 ```bash
 pip install kagglehub
@@ -43,14 +63,16 @@ python tools/build_ham_index.py
 
 This will:
 
-1. Download/cache the HAM10000 dataset via kagglehub
+1. Download/cache the HAM10000 dataset via kagglehub (~6GB)
 2. Load `HAM10000_metadata.csv` from the project root (includes age, sex, localization)
 3. Scan the dataset directory for image files
 4. Output `backend/data/ham_index.json` with metadata for richer Gemini reasoning
 
 If the index is missing, the backend returns: *"HAM index not built. Run: python tools/build_ham_index.py"*
 
-**Note:** If you already built the index, rebuild it to get age/sex/localization: `python tools/build_ham_index.py`
+**Note:** `ham_index.json` is in `.gitignore` — each developer runs `build_ham_index.py` locally. Rebuild to refresh age/sex/localization: `python tools/build_ham_index.py`
+
+---
 
 ## 3. Environment Variables
 
@@ -116,7 +138,17 @@ Open [http://localhost:3000](http://localhost:3000).
 
 - **No images in git.** The HAM10000 dataset (~6GB) is downloaded/cached locally via kagglehub.
 - The app works on the developer machine where the dataset is cached.
-- `ham_index.json` is generated locally and should not be committed (paths are machine-specific).
+- `ham_index.json` is generated locally and should not be committed (paths are machine-specific). If it was previously committed, run `git rm --cached backend/data/ham_index.json` to stop tracking it.
+
+## What's in `.gitignore`
+
+The following are excluded from version control:
+
+- **Secrets**: `kaggle.json`, `.env`, `.env.local`, `*.env.*.local`
+- **HAM10000 data**: `dataset/`, `ham10000/`, `ham10000_images/`, `skin-cancer-mnist-ham10000/`
+- **Generated index**: `ham_index.json`, `backend/data/ham_index.json`
+- **Dependencies**: `node_modules/`, `__pycache__/`, `.venv/`, `venv/`
+- **Build output**: `.next/`, `dist/`, `build/`
 
 ## Security
 

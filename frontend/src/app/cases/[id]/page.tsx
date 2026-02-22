@@ -139,7 +139,7 @@ export default function CasePage({ params }: { params: Promise<{ id: string }> }
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">What this tab does</p>
           <p className="text-sm text-slate-400 leading-relaxed">
             {tab === "dag" && (
-              <>The <strong className="text-slate-300">Pipeline</strong> tab shows the visual flowchart of how we analyze each case. Run analysis to see the step-by-step flow: health data → image analysis → combining scores → safety check → recommendation. Click any node for details.</>
+              <>The <strong className="text-slate-300">Pipeline</strong> tab shows the visual flowchart of how we analyze each case. Run analysis, then <strong className="text-cyan-400">click any node</strong> to see Gemini&apos;s explanation of the math and reasoning for that step.</>
             )}
             {tab === "graphs" && (
               <>The <strong className="text-slate-300">Metrics</strong> tab shows the numerical results: health score, image score, combined score, ABCDE criteria (asymmetry, border, color, etc.), and possible diagnoses. Use this to understand the &quot;why&quot; behind the recommendation.</>
@@ -200,11 +200,11 @@ function DagTab({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Step-by-step analysis textbox (Gemini-provided steps, case-specific reasoning when result exists) */}
-      <div className="rounded-xl border border-slate-700 bg-slate-900/50 p-5">
-        <h3 className="mb-3 text-sm font-semibold text-slate-300">Step-by-step analysis</h3>
-        <p className="mb-4 text-sm text-slate-400 leading-relaxed">
-          Every case flows through these 5 steps. The diagram below shows the same flow visually—when you run analysis, the active step is highlighted in both places.
+      {/* Step-by-step analysis — compact, uses node_reasoning when available */}
+      <div className="rounded-xl border border-slate-700 bg-slate-900/50 p-4">
+        <h3 className="mb-2 text-sm font-semibold text-slate-300">Pipeline steps</h3>
+        <p className="mb-3 text-xs text-slate-500 leading-relaxed">
+          Run analysis to see the flow. Click a node in the diagram for a detailed AI explanation of the math and reasoning.
         </p>
         <div className="space-y-3">
           {STEP_ORDER.map((id, i) => {
@@ -309,8 +309,11 @@ function DagTab({
       </div>
 
       <div className="flex flex-col lg:flex-row flex-1 gap-0 overflow-hidden rounded-xl border border-slate-700 bg-slate-900/30 min-h-[450px]">
-        <main className="flex-1 min-w-0 min-h-[300px] overflow-auto">
-          <div className="relative h-full">
+        <main className="flex-1 min-w-0 min-h-[300px] overflow-auto flex flex-col">
+          <p className="px-4 py-2 text-xs text-slate-500 border-b border-slate-700/50 shrink-0">
+            Click any node to see Gemini&apos;s explanation of the math and reasoning for that step
+          </p>
+          <div className="relative flex-1 min-h-[280px]">
             <DagCanvas
               nodes={nodes}
               edges={edges}

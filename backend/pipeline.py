@@ -243,6 +243,7 @@ def call_gemini_for_reasoning(
     guardrail_result: dict,
     image_base64: str | None,
     patient_context: dict | None = None,
+    lambda_: float = 0.5,
 ) -> dict[str, Any]:
     """
     Call Gemini for structured reasoning. Returns node_reasoning, clinician_report, patient_summary.
@@ -282,11 +283,11 @@ Pipeline outputs:
 Respond with a valid JSON object only, no markdown, with these exact keys:
 {{
   "node_reasoning": {{
-    "wearables": "1-2 sentence reasoning for wearables node",
-    "vision": "1-2 sentence reasoning for vision node",
-    "fusion": "1-2 sentence reasoning for fusion",
-    "guardrails": "1-2 sentence reasoning for guardrails",
-    "decision": "1-2 sentence reasoning for final decision"
+    "wearables": "2-3 sentences: (1) What this step does, (2) The math: how we derive p_health from heart rate, SpO2, etc. (3) Why this value makes sense for this case.",
+    "vision": "2-3 sentences: (1) What this step does, (2) The math: how ABCDE criteria and differential diagnosis yield p_vision, (3) Key visual findings that drove the score.",
+    "fusion": f"2-3 sentences: (1) What fusion does, (2) The exact formula: p_fused = λ × p_health + (1−λ) × p_vision with λ={lambda_}. Plug in the numbers. (3) Why we weight image vs health this way.",
+    "guardrails": "2-3 sentences: (1) What guardrails do, (2) The logic: when do we abstain vs pass, (3) Why this case got this outcome.",
+    "decision": "2-3 sentences: (1) What the decision step does, (2) How the fused score maps to recommendations, (3) The clinical rationale for this case."
   }},
   "clinician_report": "2-4 sentence summary for clinician",
   "patient_summary": "1-2 sentence plain-language summary for patient"
@@ -522,7 +523,7 @@ def run_pipeline(case: dict, lambda_: float = 0.5, conservative: bool = False) -
 
     # 6. Gemini reasoning
     gemini_result = call_gemini_for_reasoning(
-        health_result, vision_result, p_fused, guardrail_result, image_base64, patient_context
+        health_result, vision_result, p_fused, guardrail_result, image_base64, patient_context, lambda_
     )
 
     return {

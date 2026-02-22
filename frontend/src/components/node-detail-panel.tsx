@@ -51,7 +51,7 @@ export function NodeDetailPanel({ node, onClose }: NodeDetailPanelProps) {
           </svg>
         </div>
         <p className="text-sm text-slate-500 leading-relaxed">
-          Select a step to view details and AI explanation
+          Click a node to see Gemini&apos;s explanation of the math and reasoning for that step
         </p>
       </div>
     );
@@ -93,6 +93,21 @@ export function NodeDetailPanel({ node, onClose }: NodeDetailPanelProps) {
           {node.description}
         </p>
 
+        {/* AI explanation first — primary content when clicking a node */}
+        {node.details.geminiReasoning && (
+          <div className="rounded-lg border border-cyan-500/30 bg-cyan-500/5 p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-cyan-400" aria-hidden>✦</span>
+              <h3 className="text-xs font-semibold text-cyan-400 uppercase tracking-wider">
+                AI explanation — math & reasoning
+              </h3>
+            </div>
+            <p className="text-sm text-slate-200 leading-relaxed">
+              {node.details.geminiReasoning}
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-3">
           <MetricCard label="Result" value={node.details.value} />
           {node.details.ci && (
@@ -105,23 +120,12 @@ export function NodeDetailPanel({ node, onClose }: NodeDetailPanelProps) {
 
         <div>
           <h3 className="mb-2 text-xs font-medium text-slate-500 uppercase tracking-wider">
-            How it's calculated
+            Formula
           </h3>
           <pre className="rounded-lg bg-slate-800/80 p-3 text-xs text-slate-300 font-mono whitespace-pre-wrap overflow-x-auto">
             {node.details.math}
           </pre>
         </div>
-
-        {node.details.geminiReasoning && (
-          <div>
-            <h3 className="mb-2 text-xs font-medium text-slate-500 uppercase tracking-wider">
-              AI explanation
-            </h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              {node.details.geminiReasoning}
-            </p>
-          </div>
-        )}
 
         {node.id === "vision" && node.details.abcde && (
           <AbcdeSection abcde={node.details.abcde} />

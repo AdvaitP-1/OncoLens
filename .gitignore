@@ -37,3 +37,8 @@ ham10000/
 ham_images/
 ham10000_images/
 skin-cancer-mnist-ham10000/
+
+# Generated HAM index (machine-specific paths, regenerated via build_ham_index.py)
+ham_index.json
+**/ham_index.json
+backend/data/ham_index.json
