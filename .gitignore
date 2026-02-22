@@ -1,46 +1,39 @@
-# ---- OS / Editor ----
-.DS_Store
+# Dependencies
+node_modules/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build / output
+.next/
+dist/
+build/
+*.egg-info/
+
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# ---- Logs ----
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+# OS
+.DS_Store
+Thumbs.db
 
-# ---- Environment files ----
-.env
-.env.*
-!.env.example
-!.env.local.example
+# Kaggle credentials (never commit)
+kaggle.json
+**/kaggle.json
 
-# ---- Python ----
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-.coverage.*
-htmlcov/
-.venv/
-venv/
-env/
-
-# ---- Next.js / Node ----
-node_modules/
-.next/
-out/
-dist/
-coverage/
-
-# ---- Build artifacts ----
-build/
-tmp/
-temp/
+# HAM10000 dataset (~6GB) - do not commit
+dataset/
+ham10000/
+ham_images/
+ham10000_images/
+skin-cancer-mnist-ham10000/

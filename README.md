@@ -1,79 +1,93 @@
-# OncoLens Monorepo
+# OncoLens
 
-OncoLens is a modern screening triage + clinician↔patient collaboration prototype.
+Clinical decision support demo for skin lesion analysis. Full-stack app with wearables + vision fusion, Gemini reasoning, and HAM10000 dataset integration.
 
-- Frontend: Next.js App Router + Tailwind + Supabase JS
-- Backend: FastAPI + NumPy/Pandas/Pillow + Supabase REST/Storage
-- Database/Auth/Storage: Supabase
+## Structure
 
-## Important Disclaimer
+- **`/frontend`** – Next.js App Router + Tailwind
+- **`/backend`** – FastAPI
+- **`/sample_cases`** – Demo CSV files (wearables)
+- **`/tools`** – Scripts (e.g. `build_ham_index.py`)
 
-This system is a **research prototype** and provides **screening triage decision-support only**.  
-It does **not** provide diagnosis and is **not medical advice**. Outputs require clinician review.
+## Prerequisites
 
-## Repository structure
+- Python 3.10+
+- Node.js 18+
+- Kaggle account (for HAM10000 dataset)
 
-```text
-frontend/   # Next.js app
-backend/    # FastAPI service
-supabase_schema.sql
+## 1. KaggleHub Setup
+
+The HAM10000 dataset is downloaded via [kagglehub](https://github.com/Kaggle/kagglehub).
+
+### Authentication
+
+1. Install kagglehub: `pip install kagglehub`
+2. Create a Kaggle API token:
+   - Go to [Kaggle Account](https://www.kaggle.com/settings) → API → Create New Token
+   - This downloads `kaggle.json`
+3. Place `kaggle.json` in `~/.kaggle/` (or set `KAGGLE_USERNAME` and `KAGGLE_KEY` env vars)
+4. **Do not commit** `kaggle.json` or any tokens to the repo
+
+### Alternative: `kagglehub.login()`
+
+Run `python -c "import kagglehub; kagglehub.login()"` and follow the prompts.
+
+## 2. Build HAM Index
+
+Before running the backend, build the image index:
+
+```bash
+pip install kagglehub
+python tools/build_ham_index.py
 ```
 
-## 1) Supabase setup
+This will:
 
-1. Create a Supabase project.
-2. In SQL Editor, paste and run `supabase_schema.sql`.
-3. In Storage, create bucket: `case-assets` (private).
-4. Confirm path convention for case assets:
-   - `cases/{case_id}/wearables.csv`
-   - `cases/{case_id}/image.png` or `.jpg`
+1. Download/cache the HAM10000 dataset via kagglehub
+2. Load `HAM10000_metadata.csv` from the project root (includes age, sex, localization)
+3. Scan the dataset directory for image files
+4. Output `backend/data/ham_index.json` with metadata for richer Gemini reasoning
 
-## 2) Environment variables
+If the index is missing, the backend returns: *"HAM index not built. Run: python tools/build_ham_index.py"*
+
+**Note:** If you already built the index, rebuild it to get age/sex/localization: `python tools/build_ham_index.py`
+
+## 3. Environment Variables
+
+### Backend
+
+Create `backend/.env` or set:
+
+```bash
+export GEMINI_API_KEY=your_gemini_api_key
+export HAM_DATASET_ID=kmader/skin-cancer-mnist-ham10000
+export APP_VERSION=0.1.0
+```
 
 ### Frontend
 
-```bash
-cd frontend
-cp .env.local.example .env.local
+Create `frontend/.env.local`:
+
+```
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
 ```
 
-Set:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-NEXT_PUBLIC_BACKEND_URL=http://127.0.0.1:8000
-```
-
-### Backend
+## 4. Run Backend
 
 ```bash
 cd backend
-cp .env.example .env
-```
-
-Set:
-
-```env
-SUPABASE_URL=
-SUPABASE_SERVICE_ROLE_KEY=
-SUPABASE_STORAGE_BUCKET=case-assets
-APP_VERSION=0.1.0
-```
-
-## 3) Run locally
-
-### Backend
-
-```bash
-cd backend
-python -m venv .venv
-source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### Frontend
+Or from project root:
+
+```bash
+pip install -r backend/requirements.txt
+uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+## 5. Run Frontend
 
 ```bash
 cd frontend
@@ -81,54 +95,31 @@ npm install
 npm run dev
 ```
 
-## 4) Enable anonymous auth (hackathon)
+Open [http://localhost:3000](http://localhost:3000).
 
-In Supabase Dashboard: **Authentication > Providers > Anonymous sign-in** — enable it.  
-No login/signup UI; users land directly on the dashboard.
+## Demo Flow
 
-## 5) Create case and run analysis
+1. **New Case** (`/new-case`):
+   - Upload wearables CSV **or** choose "Use sample CSV"
+   - In "Pick Dataset Image": select class/label and click "Random sample"
+   - Or upload your own image
+   - Click "Create Case"
 
-1. Open `http://localhost:3000` and click **Go to Dashboard**.
-2. Go to **New Case**.
-3. Upload **both** (required for analysis):
-   - wearables CSV (one or more)
-   - image PNG or JPG (one per case)
-4. Click **Create case**, then **Run analysis**.
-5. Review outputs in case detail and imaging pages.
+2. **Case Analysis** (`/cases/[id]`):
+   - **DAG tab**: Pipeline nodes + right-side reasoning panel (Gemini per-node reasoning)
+   - **Graphs tab**: Scores, CIs, heatmap
+   - **Mock Patient tab**: Load Patient A/B/C CSV, pick random mel/non-mel image, Create & Run
 
-> **Note:** Analysis requires both wearables CSV and imaging. The Run analysis button is enabled only after a case is created with both assets.
+3. **Run Analysis**: Click "Run Analysis" to execute the pipeline (wearables → vision → fusion → guardrails → Gemini reasoning).
 
-## 6) Test backend with curl
+## Datasets Policy
 
-```bash
-curl http://127.0.0.1:8000/health
-```
+- **No images in git.** The HAM10000 dataset (~6GB) is downloaded/cached locally via kagglehub.
+- The app works on the developer machine where the dataset is cached.
+- `ham_index.json` is generated locally and should not be committed (paths are machine-specific).
 
-```bash
-curl -X POST "http://127.0.0.1:8000/cases/{case_id}/run" \
-  -H "Content-Type: application/json" \
-  -d '{"lambda":0.6,"conservative":true}'
-```
+## Security
 
-## Wearables CSV schema (example)
-
-Required columns (case-insensitive):
-
-- `date`
-- `steps`
-- `sleep_hours`
-- `resting_hr`
-- `hrv_ms`
-- `spo2`
-- `temp_c`
-- `weight_kg`
-- `symptom_score`
-
-Example:
-
-```csv
-date,steps,sleep_hours,resting_hr,hrv_ms,spo2,temp_c,weight_kg,symptom_score
-2026-01-01,7200,7.1,67,52,98,36.7,71.2,1
-2026-01-02,6800,6.8,69,50,97,36.8,71.2,1
-2026-01-03,5400,6.2,72,45,97,37.0,71.3,2
-```
+- Never hardcode secrets.
+- `GEMINI_API_KEY` is backend-only.
+- Kaggle tokens: use `~/.kaggle/kaggle.json` or env vars; do not embed in the repo.
