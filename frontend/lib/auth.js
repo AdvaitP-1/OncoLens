@@ -10,18 +10,20 @@ export function useRequireAuth(requiredRole) {
 
   useEffect(() => {
     async function load() {
-      const { data: userData } = await supabase.auth.getUser();
+      const { data: userData, error: userError } = await supabase.auth.getUser();
       if (!userData?.user) {
+        console.warn("[auth] getUser failed:", userError);
         router.replace("/login");
         return;
       }
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", userData.user.id)
         .single();
 
       if (!profile) {
+        console.warn("[auth] profile not found for user:", userData.user.id, profileError);
         router.replace("/login");
         return;
       }
