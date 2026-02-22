@@ -236,41 +236,50 @@ async def run_case(case_id: str, body: RunRequest) -> RunResponse:
     except RuntimeError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
-# ── List cases for the authenticated clinician ──────────────────────────────
+# ── List cases (optionally filtered by created_by) ──────────────────────────
 @app.get("/cases")
 async def list_cases(created_by: str | None = None):
     async with supabase_client() as sb:
-        query = sb.client.from_("cases").select("*").order("last_updated", desc=True)
+        url = f"{settings.postgrest_url}/cases?select=*&order=last_updated.desc"
         if created_by:
-            query = query.eq("created_by", created_by)
-        result = await query.execute()
-        return result.data
+            url += f"&created_by=eq.{created_by}"
+        res = await sb._client.get(url, headers=sb._headers)
+        res.raise_for_status()
+        return res.json()
 
 # ── Fetch a single case ─────────────────────────────────────────────────────
 @app.get("/cases/{case_id}")
 async def get_case(case_id: str):
     async with supabase_client() as sb:
-        result = await sb.client.from_("cases").select("*").eq("id", case_id).single().execute()
-        if not result.data:
+        url = f"{settings.postgrest_url}/cases?id=eq.{case_id}&select=*"
+        res = await sb._client.get(url, headers=sb._headers)
+        res.raise_for_status()
+        rows = res.json()
+        if not rows:
             raise HTTPException(status_code=404, detail="Case not found.")
-        return result.data
+        return rows[0]
 
 # ── Fetch scores/report for a case ─────────────────────────────────────────
 @app.get("/cases/{case_id}/report")
 async def get_case_report(case_id: str):
     async with supabase_client() as sb:
-        result = await sb.client.from_("cases").select("scores").eq("id", case_id).single().execute()
-        if not result.data:
+        url = f"{settings.postgrest_url}/cases?id=eq.{case_id}&select=scores"
+        res = await sb._client.get(url, headers=sb._headers)
+        res.raise_for_status()
+        rows = res.json()
+        if not rows:
             raise HTTPException(status_code=404, detail="Case not found.")
-        return result.data
+        return rows[0]
 
 # ── Insert a doctor note ────────────────────────────────────────────────────
 @app.post("/cases/{case_id}/notes")
 async def add_doctor_note(case_id: str, body: dict):
     async with supabase_client() as sb:
-        result = await sb.client.from_("doctor_notes").insert({
+        url = f"{settings.postgrest_url}/doctor_notes"
+        res = await sb._client.post(url, headers=sb._headers, json={
             "case_id": case_id,
             "author_id": body["author_id"],
             "note": body["note"],
-        }).execute()
+        })
+        res.raise_for_status()
         return {"ok": True}
